@@ -21,7 +21,8 @@
     currentVolumeDB: -Infinity,
     isInSilence: false,
     skipReason: null,
-    isMusic: false
+    isMusic: false,
+    isAtLiveEdge: false
   };
 
   // --- Settings ---
@@ -52,7 +53,8 @@
         currentVolumeDB: event.data.volumeDB,
         isInSilence: event.data.isInSilence,
         skipReason: event.data.skipReason,
-        isMusic: event.data.isMusic
+        isMusic: event.data.isMusic,
+        isAtLiveEdge: event.data.isAtLiveEdge ?? false
       };
     }
 

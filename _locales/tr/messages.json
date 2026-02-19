@@ -87,5 +87,8 @@
   },
   "hourShort": {
     "message": "sa"
+  },
+  "liveEdge": {
+    "message": "Canlı"
   }
 }

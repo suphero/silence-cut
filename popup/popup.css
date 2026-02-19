@@ -142,6 +142,11 @@ header .subtitle {
   box-shadow: 0 0 6px var(--accent-green);
 }
 
+.status-dot.live {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
 .skip-count {
   margin-left: auto;
   color: var(--text-secondary);

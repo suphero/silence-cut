@@ -236,6 +236,14 @@
     return isMusic;
   }
 
+  // --- Live Stream Detection ---
+
+  function isAtLiveEdge() {
+    if (!videoElement) return false;
+    // YouTube adds .ytp-live-badge-is-livehead class when at the live edge
+    return !!document.querySelector('.ytp-live-badge-is-livehead');
+  }
+
   // --- Analysis Loop ---
 
   function startAnalysis() {
@@ -290,6 +298,22 @@
         (now - musicStartTime >= effectiveMusicWait);
 
       // --- Take action ---
+      // Don't skip/speed-up if we're at the live edge of a live stream
+      if (isAtLiveEdge()) {
+        if (isSkipping) exitSkip();
+        notify({
+          type: 'SILENCE_CUT_VOLUME_UPDATE',
+          volumeDB,
+          isInSilence: false,
+          skipReason: null,
+          skippedCount,
+          timeSavedMs,
+          isMusic: isInMusic,
+          isAtLiveEdge: true
+        });
+        return;
+      }
+
       if (silenceReady || musicReady) {
         const reason = silenceReady ? 'silence' : 'music';
         if (!isSkipping || skipReason !== reason) {
@@ -308,7 +332,8 @@
         skipReason,
         skippedCount,
         timeSavedMs,
-        isMusic: isInMusic
+        isMusic: isInMusic,
+        isAtLiveEdge: false
       });
     }, ANALYSIS_INTERVAL_MS);
   }

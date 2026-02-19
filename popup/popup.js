@@ -212,8 +212,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       const status = await chrome.tabs.sendMessage(tab.id, { type: 'GET_STATUS' });
       if (!status) return;
 
-      statusDot.className = 'status-dot' + (status.active ? ' active' : '');
-      statusText.textContent = status.active ? msg('active') : msg('inactive');
+      const isLive = status.active && status.isAtLiveEdge;
+      statusDot.className = 'status-dot' + (status.active ? (isLive ? ' live' : ' active') : '');
+      statusText.textContent = isLive ? msg('liveEdge') : (status.active ? msg('active') : msg('inactive'));
       skipCount.textContent = msg('skipCount', [String(status.skippedCount || 0)]);
       timeSavedEl.textContent = formatTimeSaved(status.timeSavedMs || 0);
 
