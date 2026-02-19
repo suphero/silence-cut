@@ -117,7 +117,17 @@
     }
     const rms = Math.sqrt(sumSquares / buffer.length);
 
-    return rms === 0 ? -Infinity : 20 * Math.log10(rms);
+    let db = rms === 0 ? -Infinity : 20 * Math.log10(rms);
+
+    // Compensate for the video element's volume setting.
+    // createMediaElementSource() captures audio AFTER the element's volume
+    // is applied, so lowering the player volume reduces the signal level.
+    // Undo that attenuation so silence detection works on the true content level.
+    if (videoElement && videoElement.volume > 0 && videoElement.volume < 1) {
+      db -= 20 * Math.log10(videoElement.volume);
+    }
+
+    return db;
   }
 
   // --- Music Detection ---
@@ -251,6 +261,14 @@
 
     analysisInterval = setInterval(() => {
       if (!settings.enabled || !videoElement || videoElement.paused) {
+        if (isSkipping) exitSkip();
+        return;
+      }
+
+      // When the user has muted the video or set volume to 0, the Web Audio
+      // signal is silent but the actual content may have audio.  Skip all
+      // analysis (silence + music) to avoid false detections.
+      if (videoElement.muted || videoElement.volume === 0) {
         if (isSkipping) exitSkip();
         return;
       }

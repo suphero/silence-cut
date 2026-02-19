@@ -21,6 +21,21 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+// Toggle enabled on toolbar icon click
+chrome.action.onClicked.addListener(async (tab) => {
+  const { settings } = await chrome.storage.sync.get('settings');
+  const current = mergeSettings(settings);
+  current.enabled = !current.enabled;
+  await chrome.storage.sync.set({ settings: current });
+
+  if (tab?.id) {
+    chrome.tabs.sendMessage(tab.id, {
+      type: 'TOGGLE_ENABLED',
+      enabled: current.enabled
+    }).catch(() => {});
+  }
+});
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'GET_SETTINGS') {
     chrome.storage.sync.get('settings', (data) => {

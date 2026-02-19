@@ -90,5 +90,17 @@
   },
   "liveEdge": {
     "message": "Live"
+  },
+  "on": {
+    "message": "On"
+  },
+  "off": {
+    "message": "Off"
+  },
+  "titleSkip": {
+    "message": "Skip Silences"
+  },
+  "titleSpeed": {
+    "message": "Speed Up Silences"
   }
 }

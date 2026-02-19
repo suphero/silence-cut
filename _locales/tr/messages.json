@@ -90,5 +90,17 @@
   },
   "liveEdge": {
     "message": "Canlı"
+  },
+  "on": {
+    "message": "Açık"
+  },
+  "off": {
+    "message": "Kapalı"
+  },
+  "titleSkip": {
+    "message": "Sessizlikleri Atla"
+  },
+  "titleSpeed": {
+    "message": "Sessizlikleri Hızlandır"
   }
 }
