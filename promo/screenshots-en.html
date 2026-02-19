@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Silence Cut – Store Screenshots (EN)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    padding: 40px;
+  }
+
+  h2.page-title { text-align: center; font-size: 24px; color: #aaa; margin-bottom: 12px; }
+  p.page-desc { text-align: center; font-size: 14px; color: #666; margin-bottom: 40px; }
+
+  .screenshot-wrapper { position: relative; width: 1280px; margin: 0 auto 60px; }
+
+  .screenshot-frame {
+    width: 1280px; height: 800px; overflow: hidden; position: relative;
+    border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .download-btn {
+    display: block; margin: 0 auto 12px; padding: 10px 28px;
+    background: linear-gradient(135deg, #ff4e45, #ff7043); color: #fff; border: none;
+    border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .download-btn:hover { opacity: 0.85; }
+  .download-btn:disabled { opacity: 0.5; cursor: wait; }
+
+  .download-all-bar { text-align: center; margin-bottom: 40px; }
+  .download-all-btn {
+    padding: 14px 40px; background: linear-gradient(135deg, #2ba640, #4caf50); color: #fff;
+    border: none; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 16px;
+    font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+  }
+  .download-all-btn:hover { opacity: 0.85; }
+  .download-all-btn:disabled { opacity: 0.5; cursor: wait; }
+
+  /* ========== SLIDE 1: Hero ========== */
+  .slide-hero {
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #0f0f0f 100%);
+    display: flex; align-items: center; justify-content: center; gap: 60px; padding: 60px 80px;
+  }
+  .slide-hero .left { flex: 1; max-width: 540px; }
+  .slide-hero .logo-row { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+  .slide-hero .logo-icon {
+    width: 64px; height: 64px; background: linear-gradient(135deg, #ff4e45, #ff7043);
+    border-radius: 16px; display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 900; color: #fff; box-shadow: 0 4px 20px rgba(255, 78, 69, 0.4);
+  }
+  .slide-hero .logo-text { font-size: 42px; font-weight: 800; letter-spacing: -1px; }
+  .slide-hero .tagline { font-size: 22px; color: #aaa; line-height: 1.5; margin-bottom: 36px; }
+  .slide-hero .tagline strong { color: #ff4e45; }
+  .slide-hero .stats-row { display: flex; gap: 32px; }
+  .slide-hero .stat { text-align: center; }
+  .slide-hero .stat-value { font-size: 36px; font-weight: 800; color: #2ba640; }
+  .slide-hero .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
+  .slide-hero .right { flex-shrink: 0; }
+
+  /* Popup mockup */
+  .popup-mock {
+    width: 320px; background: #0f0f0f; border-radius: 12px; padding: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .popup-mock .pm-header { text-align: center; padding-bottom: 12px; border-bottom: 1px solid #3a3a3a; margin-bottom: 14px; }
+  .popup-mock .pm-header h3 { font-size: 18px; font-weight: 700; }
+  .popup-mock .pm-header p { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .pm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .pm-label { font-size: 12px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pm-toggle { width: 42px; height: 24px; background: #2ba640; border-radius: 24px; position: relative; }
+  .pm-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 3px; right: 3px; }
+  .pm-status { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #272727; border-radius: 8px; margin-bottom: 12px; font-size: 12px; }
+  .pm-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ba640; box-shadow: 0 0 6px #2ba640; flex-shrink: 0; }
+  .pm-skip-count { margin-left: auto; color: #aaa; font-size: 11px; }
+  .pm-time-saved { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: linear-gradient(135deg, rgba(43,166,64,0.12), rgba(255,193,7,0.08)); border: 1px solid rgba(43,166,64,0.25); border-radius: 8px; margin-bottom: 14px; font-size: 12px; }
+  .pm-time-icon { font-size: 16px; }
+  .pm-time-label { color: #aaa; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pm-time-value { margin-left: auto; font-size: 16px; font-weight: 700; color: #2ba640; }
+  .pm-divider { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; }
+  .pm-divider::before, .pm-divider::after { content: ''; flex: 1; height: 1px; background: #3a3a3a; }
+  .pm-divider span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #aaa; }
+  .pm-meter { margin-bottom: 8px; }
+  .pm-meter-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .pm-meter-bar { height: 10px; background: #272727; border-radius: 5px; position: relative; overflow: hidden; }
+  .pm-meter-fill { height: 100%; width: 35%; background: linear-gradient(90deg, #2ba640, #ffc107, #ff4e45); border-radius: 5px; }
+  .pm-meter-threshold { position: absolute; top: 0; bottom: 0; left: 40%; width: 2px; background: #f1f1f1; opacity: 0.7; }
+  .pm-tags { display: flex; gap: 6px; margin-top: 8px; }
+  .pm-tag { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pm-tag-silence { background: rgba(43,166,64,0.2); color: #2ba640; border: 1px solid rgba(43,166,64,0.4); }
+
+  /* ========== SLIDE 2: Features ========== */
+  .slide-features { background: linear-gradient(160deg, #0f0f0f, #1a1025, #0f0f0f); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 80px; }
+  .slide-features .title { font-size: 40px; font-weight: 800; text-align: center; margin-bottom: 12px; letter-spacing: -0.5px; }
+  .slide-features .title span { color: #ff4e45; }
+  .slide-features .desc { font-size: 18px; color: #888; text-align: center; margin-bottom: 50px; }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; width: 100%; max-width: 1100px; }
+  .feature-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 32px 28px; text-align: center; }
+  .feature-card .fc-icon { width: 56px; height: 56px; margin: 0 auto 16px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+  .fc-icon-silence { background: rgba(43,166,64,0.15); }
+  .fc-icon-music { background: rgba(156,39,176,0.15); }
+  .fc-icon-speed { background: rgba(255,78,69,0.15); }
+  .fc-icon-custom { background: rgba(255,193,7,0.15); }
+  .fc-icon-monitor { background: rgba(33,150,243,0.15); }
+  .fc-icon-privacy { background: rgba(76,175,80,0.15); }
+  .feature-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { font-size: 13px; color: #888; line-height: 1.5; }
+
+  /* ========== SLIDE 3: How It Works ========== */
+  .slide-how { background: linear-gradient(135deg, #0a1628, #0f0f0f, #1a0a0a); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 80px; }
+  .slide-how .title { font-size: 40px; font-weight: 800; margin-bottom: 60px; letter-spacing: -0.5px; }
+  .slide-how .title span { color: #ff4e45; }
+  .steps-row { display: flex; gap: 40px; align-items: flex-start; max-width: 1100px; }
+  .step { flex: 1; text-align: center; position: relative; }
+  .step-num { width: 56px; height: 56px; margin: 0 auto 20px; border-radius: 50%; background: linear-gradient(135deg, #ff4e45, #ff7043); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; box-shadow: 0 4px 20px rgba(255, 78, 69, 0.3); }
+  .step h4 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .step p { font-size: 14px; color: #888; line-height: 1.6; }
+  .step-arrow { position: absolute; right: -28px; top: 26px; font-size: 24px; color: #3a3a3a; }
+
+  /* ========== SLIDE 4: Modes ========== */
+  .slide-modes { background: linear-gradient(135deg, #0f0f0f 0%, #0a1a0f 50%, #0f0f0f 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 80px; }
+  .slide-modes .title { font-size: 40px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.5px; }
+  .slide-modes .title span { color: #2ba640; }
+  .slide-modes .desc { font-size: 18px; color: #888; margin-bottom: 50px; }
+  .modes-row { display: flex; gap: 40px; width: 100%; max-width: 900px; }
+  .mode-card { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; padding: 40px 36px; text-align: center; }
+  .mode-card .mc-icon { font-size: 48px; margin-bottom: 20px; }
+  .mode-card h3 { font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+  .mode-card p { font-size: 15px; color: #888; line-height: 1.6; margin-bottom: 24px; }
+  .mode-card .mc-visual { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 20px; font-size: 13px; color: #ccc; font-family: 'Courier New', monospace; }
+  .mc-visual .timeline { display: flex; align-items: center; gap: 4px; justify-content: center; margin-top: 8px; }
+  .mc-visual .tl-block { height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; }
+  .tl-speech { background: #2196f3; }
+  .tl-skip { background: #ff4e45; }
+  .tl-speed { background: #ff9800; }
+
+  /* ========== SLIDE 5: Privacy ========== */
+  .slide-privacy { background: linear-gradient(135deg, #0f0f0f 0%, #0f1a2e 50%, #0f0f0f 100%); display: flex; align-items: center; justify-content: center; gap: 80px; padding: 60px 100px; }
+  .slide-privacy .left { flex: 1; }
+  .slide-privacy .title { font-size: 40px; font-weight: 800; margin-bottom: 16px; letter-spacing: -0.5px; line-height: 1.2; }
+  .slide-privacy .title span { color: #2196f3; }
+  .slide-privacy .desc { font-size: 17px; color: #888; line-height: 1.6; margin-bottom: 36px; }
+  .privacy-list { list-style: none; display: flex; flex-direction: column; gap: 18px; }
+  .privacy-list li { display: flex; align-items: flex-start; gap: 14px; font-size: 16px; line-height: 1.5; }
+  .privacy-list .pl-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(33,150,243,0.12); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .privacy-list .pl-text strong { display: block; margin-bottom: 2px; }
+  .privacy-list .pl-text span { color: #888; font-size: 14px; }
+  .slide-privacy .right { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .shield-icon { width: 180px; height: 180px; background: linear-gradient(135deg, rgba(33,150,243,0.15), rgba(76,175,80,0.1)); border: 2px solid rgba(33,150,243,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 80px; }
+  .slide-privacy .badge-row { display: flex; gap: 12px; }
+  .privacy-badge { padding: 8px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; font-size: 12px; font-weight: 600; color: #aaa; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<h2 class="page-title">Silence Cut – Chrome Web Store Screenshots (English / Global)</h2>
+<p class="page-desc">Click the button above each frame to download as PNG (1280&times;800, 24-bit, no alpha).</p>
+
+<div class="download-all-bar">
+  <button class="download-all-btn" onclick="downloadAll()">Download All (5 PNGs)</button>
+</div>
+
+<!-- SLIDE 1: Hero -->
+<div class="screenshot-wrapper">
+  <button class="download-btn" onclick="downloadScreenshot(this, 'silence-cut-en-1-hero.png')">Download — Hero</button>
+  <div class="screenshot-frame slide-hero">
+    <div class="left">
+      <div class="logo-row">
+        <div class="logo-icon">SC</div>
+        <div class="logo-text">Silence Cut</div>
+      </div>
+      <p class="tagline">
+        <strong>Automatically skip</strong> silent sections in YouTube videos.<br>
+        Save time. Stay focused on what matters.
+      </p>
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-value">20%</div>
+          <div class="stat-label">Average time saved</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">2x–16x</div>
+          <div class="stat-label">Speed during silence</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value">0ms</div>
+          <div class="stat-label">Data collected</div>
+        </div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="popup-mock">
+        <div class="pm-header">
+          <h3>Silence Cut</h3>
+          <p>YouTube silence & music skipper</p>
+        </div>
+        <div class="pm-row">
+          <span class="pm-label">Enabled</span>
+          <div class="pm-toggle"></div>
+        </div>
+        <div class="pm-status">
+          <span class="pm-dot"></span>
+          <span>Active</span>
+          <span class="pm-skip-count">12 skips</span>
+        </div>
+        <div class="pm-time-saved">
+          <span class="pm-time-icon">&#9201;</span>
+          <span class="pm-time-label">Time saved</span>
+          <span class="pm-time-value">2m 34s</span>
+        </div>
+        <div class="pm-divider"><span>Live Monitoring</span></div>
+        <div class="pm-meter">
+          <div class="pm-meter-header">
+            <span class="pm-label">Volume Level</span>
+            <span style="font-size:10px;color:#aaa">-42 dB</span>
+          </div>
+          <div class="pm-meter-bar">
+            <div class="pm-meter-fill"></div>
+            <div class="pm-meter-threshold"></div>
+          </div>
+          <div class="pm-tags">
+            <span class="pm-tag pm-tag-silence">Silence</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: Key Features -->
+<div class="screenshot-wrapper">
+  <button class="download-btn" onclick="downloadScreenshot(this, 'silence-cut-en-2-features.png')">Download — Features</button>
+  <div class="screenshot-frame slide-features">
+    <div class="title">Packed with <span>Powerful</span> Features</div>
+    <p class="desc">Everything you need to skip the silence and save time</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="fc-icon fc-icon-silence">&#128263;</div>
+        <h4>Silence Detection</h4>
+        <p>Real-time audio analysis detects silent sections and takes instant action</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon fc-icon-music">&#127925;</div>
+        <h4>Music Detection</h4>
+        <p>Optionally skip music-only segments like intros, outros, and transitions</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon fc-icon-speed">&#9889;</div>
+        <h4>Skip or Speed Up</h4>
+        <p>Choose to jump past silence entirely or speed through it at up to 16x</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon fc-icon-custom">&#9881;</div>
+        <h4>Fully Customizable</h4>
+        <p>Fine-tune threshold, duration, speed, and sensitivity to your liking</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon fc-icon-monitor">&#128200;</div>
+        <h4>Live Monitoring</h4>
+        <p>Real-time volume meter with detection indicators and skip counter</p>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon fc-icon-privacy">&#128274;</div>
+        <h4>100% Private</h4>
+        <p>No data collection. Everything runs locally in your browser</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: How It Works -->
+<div class="screenshot-wrapper">
+  <button class="download-btn" onclick="downloadScreenshot(this, 'silence-cut-en-3-how-it-works.png')">Download — How It Works</button>
+  <div class="screenshot-frame slide-how">
+    <div class="title">How <span>Silence Cut</span> Works</div>
+    <div class="steps-row">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Install & Open YouTube</h4>
+        <p>Install the extension and navigate to any YouTube video. No setup required.</p>
+        <span class="step-arrow">&#10132;</span>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>Audio Is Analyzed</h4>
+        <p>The extension monitors the audio stream in real time, detecting volume drops and music-only segments.</p>
+        <span class="step-arrow">&#10132;</span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Silence Is Handled</h4>
+        <p>When silence is detected, the video is automatically skipped or sped up based on your settings.</p>
+        <span class="step-arrow">&#10132;</span>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Track Your Savings</h4>
+        <p>Open the popup to see live stats: skip count, time saved, volume level, and detection status.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: Two Modes -->
+<div class="screenshot-wrapper">
+  <button class="download-btn" onclick="downloadScreenshot(this, 'silence-cut-en-4-modes.png')">Download — Modes</button>
+  <div class="screenshot-frame slide-modes">
+    <div class="title">Two <span>Action Modes</span></div>
+    <p class="desc">Choose how silence is handled — skip it or speed through it</p>
+    <div class="modes-row">
+      <div class="mode-card">
+        <div class="mc-icon">&#9197;</div>
+        <h3>Skip Mode</h3>
+        <p>Jumps past silent sections entirely, taking you straight to the next spoken word.</p>
+        <div class="mc-visual">
+          Video timeline:
+          <div class="timeline">
+            <div class="tl-block tl-speech" style="width:100px">Speech</div>
+            <div class="tl-block tl-skip" style="width:60px;opacity:0.4;text-decoration:line-through">Silent</div>
+            <div class="tl-block tl-speech" style="width:120px">Speech</div>
+            <div class="tl-block tl-skip" style="width:40px;opacity:0.4;text-decoration:line-through">Silent</div>
+            <div class="tl-block tl-speech" style="width:80px">Speech</div>
+          </div>
+        </div>
+      </div>
+      <div class="mode-card">
+        <div class="mc-icon">&#9193;</div>
+        <h3>Speed Mode</h3>
+        <p>Accelerates playback during silence (2x–16x) so you maintain context while saving time.</p>
+        <div class="mc-visual">
+          Video timeline:
+          <div class="timeline">
+            <div class="tl-block tl-speech" style="width:100px">1x</div>
+            <div class="tl-block tl-speed" style="width:36px">4x</div>
+            <div class="tl-block tl-speech" style="width:120px">1x</div>
+            <div class="tl-block tl-speed" style="width:24px">4x</div>
+            <div class="tl-block tl-speech" style="width:80px">1x</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: Privacy -->
+<div class="screenshot-wrapper">
+  <button class="download-btn" onclick="downloadScreenshot(this, 'silence-cut-en-5-privacy.png')">Download — Privacy</button>
+  <div class="screenshot-frame slide-privacy">
+    <div class="left">
+      <div class="title">Your Privacy<br><span>Comes First</span></div>
+      <p class="desc">Silence Cut is designed with privacy at its core. No compromises.</p>
+      <ul class="privacy-list">
+        <li>
+          <div class="pl-icon">&#128274;</div>
+          <div class="pl-text"><strong>Zero Data Collection</strong><span>No analytics, no tracking, no telemetry. Period.</span></div>
+        </li>
+        <li>
+          <div class="pl-icon">&#128187;</div>
+          <div class="pl-text"><strong>100% Local Processing</strong><span>All audio analysis happens entirely on your device.</span></div>
+        </li>
+        <li>
+          <div class="pl-icon">&#128737;</div>
+          <div class="pl-text"><strong>Minimal Permissions</strong><span>Only requests access to YouTube and local storage.</span></div>
+        </li>
+        <li>
+          <div class="pl-icon">&#9889;</div>
+          <div class="pl-text"><strong>Lightweight</strong><span>Only activates on YouTube tabs. Zero background usage.</span></div>
+        </li>
+      </ul>
+    </div>
+    <div class="right">
+      <div class="shield-icon">&#128737;</div>
+      <div class="badge-row">
+        <span class="privacy-badge">No Servers</span>
+        <span class="privacy-badge">No Tracking</span>
+        <span class="privacy-badge">Open Source</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function downloadScreenshot(btn, filename) {
+  const frame = btn.parentElement.querySelector('.screenshot-frame');
+  btn.disabled = true;
+  btn.textContent = 'Capturing...';
+  try {
+    const canvas = await html2canvas(frame, {
+      width: 1280,
+      height: 800,
+      scale: 1,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false
+    });
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (e) {
+    alert('Capture failed: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = btn.textContent.replace('Capturing...', 'Download');
+  btn.textContent = 'Download — ' + filename.replace('silence-cut-en-', '').replace('.png', '').replace(/^\d+-/, '');
+}
+
+async function downloadAll() {
+  const btn = document.querySelector('.download-all-btn');
+  btn.disabled = true;
+  btn.textContent = 'Downloading...';
+  const buttons = document.querySelectorAll('.download-btn');
+  for (const b of buttons) {
+    const filename = b.getAttribute('onclick').match(/'([^']+\.png)'/)[1];
+    const frame = b.parentElement.querySelector('.screenshot-frame');
+    try {
+      const canvas = await html2canvas(frame, {
+        width: 1280, height: 800, scale: 1,
+        useCORS: true, backgroundColor: null, logging: false
+      });
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      await new Promise(r => setTimeout(r, 500));
+    } catch (e) {
+      console.error('Failed:', filename, e);
+    }
+  }
+  btn.disabled = false;
+  btn.textContent = 'Download All (5 PNGs)';
+}
+</script>
+</body>
+</html>

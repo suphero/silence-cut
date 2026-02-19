@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Promo Tile Generator</title>
+  <style>
+    body { background: #333; display: flex; flex-direction: column; align-items: center; padding: 40px; font-family: sans-serif; color: #fff; }
+    button { margin-top: 20px; padding: 12px 24px; font-size: 16px; cursor: pointer; background: #ff4e45; color: #fff; border: none; border-radius: 8px; }
+    canvas { border: 1px solid #555; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="440" height="280"></canvas>
+  <button onclick="download()">Download PNG</button>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const icon = new Image();
+    icon.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAADr0lEQVR4nO3USXIjMQxEUd1Ap+pt3/827pCjPciSyixi+CCRGcG9jfdVl4umaZqmaZqmaZqmadpGe/v7523m0X+3dnKz0Apj0WWBK4hio8EVAjAaVzFAoyEVAjQaTiFAo6EUAjQaRiGAozEUATQaoMqjHZDRR6/2aI/U0cem3vV6PXy0S8pohKr420fw9DAeK4D720bxtw1h9nA7BDCDv1UEll/O6gFY8LeIwPrpXDkAD/ylI7B+OlcOwBN/2Qi6BhCBv1wAlk/nygFE4S8VgeXTuXIA0fhLRGD5dK4cQBZ+6Qgsn86VA8jGLxtBxwAo/HIBTB9x4QBI/FIRmA65aAA0/O19/C20f7sAaPjv+HgA5oMuFgAN/xMfj6BTADT8K3wsAJfDLhIADX+Ej0XQJQAafgQ/PQC3AxcPgIYfxU+PoEMANPxZ/LQAXA9dNAAafgY/LYLdA6DhLfgKoDl+eADev7ZKAdDwHvjhEewaAA3viR8WgDt+kQBo+Hd8p5BDI9gxABr+E18B5AdAw9/hK4DcAGj4B/zqAYTgQwHQ8E/xAwJwjWCXAGj4l/gKID4AGv4QXwHEBkDD/4qvAOICoOGH8BVATAA0/DB+5QDC8IMDoOFP4QcF4BLBigHQ8KfxFYBfADT8FL4C8AmAhp/GVwD2AGh4E74CsB2Ohjfj//8/FMDEaHgX/NsUwPnR8O/4jl8yBbAivgLID4CGv8NXALkB0PAP+AogLwAa/im+AsgJgIZ/ia8A4gOg4Q/xdw8gNIId8AsH4IJPBkDDD+ErgJgAaPhhfAXgHwANfwpfAfgGQMOfxlcAfgHQ8FP4HQIIi2AH/KIBuOJHB0DDm/AVgO1wNLwZXwHMPxreBb9LAN4R0PBu+AUDCMH3DICGd8XvFIBHBDS8O36xAELxrQHQ8CH4CqA5frcAZiKg4UPxCwWQgn82ABo+HL9jAKMR0PAp+EUCSMUfCYCGT8PvGsBRBDR8Kn6BABD8VwHQ8On4nQP4GQENj+DDAaD43wOg4TH87gHcRsOj+GAAtPvd2uJDAdDeD2uLrwC+lo4/cbgdAqCdD5eK3zAA2ndoafjNAqBdTy0Fv1EAtOfppeArgNoLx28SAO1oWih+gwBoP5eF4W8eAO3muhD8jQOgvcI2jE+jQo/2SZnwG+N/jD52tUd7IKOPXuXRDvhoAMEXGI0h/CKjYQRfZDSU4IuMhhN8kdGQgi80GlfoRUaDC77YBK49naA1TdM0TdM0TdM0TdMul39OPEP/o9bdUwAAAABJRU5ErkJggg==';
+    icon.onload = draw;
+
+    function draw() {
+      // Background gradient
+      const bg = ctx.createLinearGradient(0, 0, 440, 280);
+      bg.addColorStop(0, '#0f0f0f');
+      bg.addColorStop(1, '#1a1a1a');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 440, 280);
+
+      // Subtle accent glow top-right
+      const glow = ctx.createRadialGradient(380, 40, 10, 380, 40, 200);
+      glow.addColorStop(0, 'rgba(255, 78, 69, 0.15)');
+      glow.addColorStop(1, 'rgba(255, 78, 69, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, 440, 280);
+
+      // Subtle accent glow bottom-left
+      const glow2 = ctx.createRadialGradient(60, 240, 10, 60, 240, 180);
+      glow2.addColorStop(0, 'rgba(43, 166, 64, 0.1)');
+      glow2.addColorStop(1, 'rgba(43, 166, 64, 0)');
+      ctx.fillStyle = glow2;
+      ctx.fillRect(0, 0, 440, 280);
+
+      // Icon
+      const iconSize = 64;
+      const iconX = (440 - iconSize) / 2;
+      ctx.drawImage(icon, iconX, 40, iconSize, iconSize);
+
+      // Title
+      ctx.fillStyle = '#f1f1f1';
+      ctx.font = 'bold 28px "Segoe UI", Roboto, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Silence Cut', 220, 140);
+
+      // Subtitle
+      ctx.fillStyle = '#aaaaaa';
+      ctx.font = '14px "Segoe UI", Roboto, Arial, sans-serif';
+      ctx.fillText('Skip silence & music in YouTube videos', 220, 165);
+
+      // Feature pills
+      const pills = ['Auto-detect', 'Skip or Speed up', 'Save time'];
+      const pillColors = ['#ff4e45', '#2ba640', '#9c27b0'];
+      const pillWidth = 120;
+      const pillGap = 12;
+      const totalWidth = pills.length * pillWidth + (pills.length - 1) * pillGap;
+      let startX = (440 - totalWidth) / 2;
+
+      pills.forEach((text, i) => {
+        const x = startX + i * (pillWidth + pillGap);
+        const y = 195;
+
+        // Pill background
+        ctx.fillStyle = pillColors[i] + '22';
+        ctx.strokeStyle = pillColors[i] + '66';
+        ctx.lineWidth = 1;
+        roundRect(ctx, x, y, pillWidth, 30, 15);
+        ctx.fill();
+        ctx.stroke();
+
+        // Pill text
+        ctx.fillStyle = pillColors[i];
+        ctx.font = '600 11px "Segoe UI", Roboto, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(text, x + pillWidth / 2, y + 19);
+      });
+
+      // Bottom border accent line
+      const line = ctx.createLinearGradient(80, 0, 360, 0);
+      line.addColorStop(0, 'rgba(255, 78, 69, 0)');
+      line.addColorStop(0.3, 'rgba(255, 78, 69, 0.6)');
+      line.addColorStop(0.7, 'rgba(43, 166, 64, 0.6)');
+      line.addColorStop(1, 'rgba(43, 166, 64, 0)');
+      ctx.fillStyle = line;
+      ctx.fillRect(80, 252, 280, 2);
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function download() {
+      const link = document.createElement('a');
+      link.download = 'promo-tile-440x280.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>

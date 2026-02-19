@@ -1,0 +1,91 @@
+{
+  "extName": {
+    "message": "Silence Cut"
+  },
+  "extDescription": {
+    "message": "YouTube videolarındaki sessiz bölümleri otomatik algılayıp atlar veya hızlandırır"
+  },
+  "subtitle": {
+    "message": "YouTube sessizlik ve müzik atlama"
+  },
+  "enabled": {
+    "message": "Etkin"
+  },
+  "waiting": {
+    "message": "Bekliyor"
+  },
+  "active": {
+    "message": "Aktif"
+  },
+  "inactive": {
+    "message": "Pasif"
+  },
+  "skipCount": {
+    "message": "$count$ atlama",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeSaved": {
+    "message": "Kazanılan süre"
+  },
+  "mode": {
+    "message": "Mod"
+  },
+  "skip": {
+    "message": "Atla"
+  },
+  "speedUp": {
+    "message": "Hızlandır"
+  },
+  "speedMultiplier": {
+    "message": "Hız Çarpanı"
+  },
+  "silence": {
+    "message": "Sessizlik"
+  },
+  "silenceDetection": {
+    "message": "Sessizlik Algılama"
+  },
+  "silenceThreshold": {
+    "message": "Sessizlik Eşiği"
+  },
+  "minDuration": {
+    "message": "Min. Süre"
+  },
+  "music": {
+    "message": "Müzik"
+  },
+  "musicDetection": {
+    "message": "Müzik Algılama"
+  },
+  "sensitivity": {
+    "message": "Hassasiyet"
+  },
+  "low": {
+    "message": "Düşük"
+  },
+  "high": {
+    "message": "Yüksek"
+  },
+  "liveMonitoring": {
+    "message": "Canlı İzleme"
+  },
+  "volumeLevel": {
+    "message": "Ses Seviyesi"
+  },
+  "notYoutube": {
+    "message": "YouTube değil"
+  },
+  "secondShort": {
+    "message": "s"
+  },
+  "minuteShort": {
+    "message": "dk"
+  },
+  "hourShort": {
+    "message": "sa"
+  }
+}

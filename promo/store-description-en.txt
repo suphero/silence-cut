@@ -1,0 +1,105 @@
+Silence Cut – Automatically skip or speed through silent and music-only sections in YouTube videos. Save time and stay focused on what matters.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ WHY SILENCE CUT?
+
+Have you ever watched a tutorial, podcast, or lecture on YouTube and noticed long pauses, awkward silences, or background music segments that add nothing to the content? Those dead moments add up — sometimes eating 10-20% of a video's total length.
+
+Silence Cut detects these moments in real time and automatically handles them for you. No more manually scrubbing forward. No more wasted time.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 KEY FEATURES
+
+✅ Automatic Silence Detection
+Silence Cut continuously analyzes the audio stream of any YouTube video. When the volume drops below your configured threshold for a set duration, the extension instantly takes action — either skipping ahead or speeding up playback.
+
+✅ Two Action Modes
+• Skip Mode: Jumps past silent sections entirely, getting you straight to the next spoken word.
+• Speed Mode: Accelerates playback during silence (up to 16x speed), so you maintain context while saving time.
+
+✅ Music Detection (Optional)
+Enable music detection to also handle segments where only background music is playing with no speech. Great for podcasts and tutorials that use intro/outro music or transition jingles.
+
+✅ Fully Customizable
+Fine-tune every parameter to match your preferences:
+• Silence Threshold: Set the volume level (in dB) that counts as "silent" — from -60 dB (very sensitive) to -10 dB (only catches total silence).
+• Minimum Duration: Define how long a quiet moment must last before the extension acts — from 0.1 seconds to 3 seconds.
+• Speed Multiplier: Choose how fast to play through silent sections — from 2x to 16x.
+• Music Sensitivity: Adjust how aggressively music segments are detected — from low to high.
+
+✅ Live Monitoring Dashboard
+The popup shows you exactly what's happening in real time:
+• Current volume level with a visual meter
+• Active silence and music detection indicators
+• Skip counter — see how many silent sections have been handled
+• Time saved — track exactly how much time you've saved in the current session
+
+✅ Lightweight & Privacy-Friendly
+• No data collection — everything runs locally in your browser
+• No external servers — audio analysis happens entirely on your device
+• Minimal permissions — only requires access to YouTube and local storage for your settings
+• No background resource usage — the extension only activates on YouTube tabs
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 HOW IT WORKS
+
+1. Install Silence Cut and navigate to any YouTube video.
+2. The extension automatically starts analyzing the audio.
+3. When silence is detected, it skips or speeds up based on your chosen mode.
+4. Click the extension icon to view stats, adjust settings, or toggle features on/off.
+
+That's it. No setup required. It works out of the box with sensible defaults.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎓 PERFECT FOR
+
+• Students watching lecture recordings and online courses
+• Developers following coding tutorials
+• Podcast listeners who watch on YouTube
+• Language learners watching foreign content
+• Anyone who values their time and wants to consume content more efficiently
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚙️ DEFAULT SETTINGS
+
+Silence Cut is pre-configured to work great out of the box:
+• Mode: Speed up (4x during silent sections)
+• Silence Threshold: -40 dB
+• Minimum Silence Duration: 0.1 seconds
+• Music Detection: Off (enable manually if needed)
+
+You can adjust all settings at any time through the popup.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 PERMISSIONS EXPLAINED
+
+• Storage: Saves your preferences locally so settings persist across sessions.
+• Active Tab: Required to communicate with YouTube tabs for audio analysis.
+• Host Permission (youtube.com): Allows the content script to run on YouTube pages for real-time audio processing.
+
+No other permissions are requested. Your data stays on your device.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 TIPS
+
+• Start with default settings and adjust gradually if needed.
+• If too many sections are being skipped, increase the minimum duration or raise the threshold (closer to -10 dB).
+• Use Speed mode instead of Skip mode if you want to maintain continuity while still saving time.
+• Enable music detection for podcast-style videos with long musical intros.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌍 LANGUAGES
+
+Silence Cut is available in English and Turkish (Türkçe). The extension automatically uses your browser's language.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Stop wasting time on silence. Let Silence Cut handle it for you.

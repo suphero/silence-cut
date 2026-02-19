@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silence Cut</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Silence Cut</h1>
+      <p class="subtitle" data-i18n="subtitle"></p>
+    </header>
+
+    <div class="setting-group toggle-group">
+      <span class="label" data-i18n="enabled"></span>
+      <label class="switch">
+        <input type="checkbox" id="enabled-toggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="status-bar" id="status-bar">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text"></span>
+      <span class="skip-count" id="skip-count"></span>
+    </div>
+
+    <div class="time-saved-bar">
+      <span class="time-saved-icon">&#9201;</span>
+      <span class="time-saved-label" data-i18n="timeSaved"></span>
+      <span class="time-saved-value" id="time-saved">0s</span>
+    </div>
+
+    <!-- Action Mode -->
+    <div class="setting-group">
+      <span class="label" data-i18n="mode"></span>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="actionMode" value="skip">
+          <span data-i18n="skip"></span>
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="actionMode" value="speed" checked>
+          <span data-i18n="speedUp"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="setting-group" id="speed-group">
+      <div class="slider-header">
+        <span class="label" data-i18n="speedMultiplier"></span>
+        <span class="value" id="speed-value">4x</span>
+      </div>
+      <input type="range" id="speed-slider" min="2" max="16" value="4" step="1">
+      <div class="range-labels">
+        <span>2x</span>
+        <span>16x</span>
+      </div>
+    </div>
+
+    <!-- Silence Section -->
+    <div class="section-divider">
+      <span data-i18n="silence"></span>
+    </div>
+
+    <div class="setting-group toggle-group">
+      <span class="label" data-i18n="silenceDetection"></span>
+      <label class="switch">
+        <input type="checkbox" id="silence-toggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div id="silence-settings">
+      <div class="setting-group">
+        <div class="slider-header">
+          <span class="label" data-i18n="silenceThreshold"></span>
+          <span class="value" id="threshold-value">-40 dB</span>
+        </div>
+        <input type="range" id="threshold-slider" min="-60" max="-10" value="-40" step="1">
+        <div class="range-labels">
+          <span>-60 dB</span>
+          <span>-10 dB</span>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="slider-header">
+          <span class="label" data-i18n="minDuration"></span>
+          <span class="value" id="silence-duration-value">0.1s</span>
+        </div>
+        <input type="range" id="silence-duration-slider" min="0.1" max="3.0" value="0.1" step="0.1">
+        <div class="range-labels">
+          <span>0.1s</span>
+          <span>3.0s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Music Section -->
+    <div class="section-divider">
+      <span data-i18n="music"></span>
+    </div>
+
+    <div class="setting-group toggle-group">
+      <span class="label" data-i18n="musicDetection"></span>
+      <label class="switch">
+        <input type="checkbox" id="music-toggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div id="music-settings" class="collapsed">
+      <div class="setting-group">
+        <div class="slider-header">
+          <span class="label" data-i18n="sensitivity"></span>
+          <span class="value" id="music-sensitivity-value">%50</span>
+        </div>
+        <input type="range" id="music-sensitivity-slider" min="0" max="1" value="0.5" step="0.05">
+        <div class="range-labels">
+          <span data-i18n="low"></span>
+          <span data-i18n="high"></span>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="slider-header">
+          <span class="label" data-i18n="minDuration"></span>
+          <span class="value" id="music-duration-value">1.0s</span>
+        </div>
+        <input type="range" id="music-duration-slider" min="0.5" max="5.0" value="1.0" step="0.5">
+        <div class="range-labels">
+          <span>0.5s</span>
+          <span>5.0s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Volume Meter -->
+    <div class="section-divider">
+      <span data-i18n="liveMonitoring"></span>
+    </div>
+
+    <div class="setting-group">
+      <div class="meter-row">
+        <span class="label" data-i18n="volumeLevel"></span>
+        <span class="volume-db" id="volume-db">-- dB</span>
+      </div>
+      <div class="volume-meter">
+        <div class="volume-bar" id="volume-bar"></div>
+        <div class="threshold-line" id="threshold-line"></div>
+      </div>
+      <div class="detection-tags" id="detection-tags">
+        <span class="tag tag-silence hidden" id="tag-silence" data-i18n="silence"></span>
+        <span class="tag tag-music hidden" id="tag-music" data-i18n="music"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

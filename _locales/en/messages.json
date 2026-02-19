@@ -1,0 +1,91 @@
+{
+  "extName": {
+    "message": "Silence Cut"
+  },
+  "extDescription": {
+    "message": "Automatically detects and skips or speeds up silent sections in YouTube videos"
+  },
+  "subtitle": {
+    "message": "YouTube silence & music skipper"
+  },
+  "enabled": {
+    "message": "Enabled"
+  },
+  "waiting": {
+    "message": "Waiting"
+  },
+  "active": {
+    "message": "Active"
+  },
+  "inactive": {
+    "message": "Inactive"
+  },
+  "skipCount": {
+    "message": "$count$ skips",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "timeSaved": {
+    "message": "Time saved"
+  },
+  "mode": {
+    "message": "Mode"
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "speedUp": {
+    "message": "Speed up"
+  },
+  "speedMultiplier": {
+    "message": "Speed Multiplier"
+  },
+  "silence": {
+    "message": "Silence"
+  },
+  "silenceDetection": {
+    "message": "Silence Detection"
+  },
+  "silenceThreshold": {
+    "message": "Silence Threshold"
+  },
+  "minDuration": {
+    "message": "Min. Duration"
+  },
+  "music": {
+    "message": "Music"
+  },
+  "musicDetection": {
+    "message": "Music Detection"
+  },
+  "sensitivity": {
+    "message": "Sensitivity"
+  },
+  "low": {
+    "message": "Low"
+  },
+  "high": {
+    "message": "High"
+  },
+  "liveMonitoring": {
+    "message": "Live Monitoring"
+  },
+  "volumeLevel": {
+    "message": "Volume Level"
+  },
+  "notYoutube": {
+    "message": "Not YouTube"
+  },
+  "secondShort": {
+    "message": "s"
+  },
+  "minuteShort": {
+    "message": "min"
+  },
+  "hourShort": {
+    "message": "h"
+  }
+}

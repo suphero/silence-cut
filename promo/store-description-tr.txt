@@ -1,0 +1,105 @@
+Silence Cut – YouTube videolarındaki sessiz bölümleri ve müzik geçişlerini otomatik olarak atlayın veya hızlandırın. Zamandan tasarruf edin, önemli içeriğe odaklanın.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚡ NEDEN SILENCE CUT?
+
+YouTube'da bir eğitim videosu, podcast veya ders kaydı izlerken uzun duraklamaları, garip sessizlikleri veya içeriğe hiçbir şey katmayan arka plan müziği bölümlerini fark ettiniz mi? Bu boş anlar toplanıyor — bazen bir videonun toplam süresinin %10-20'sini yiyor.
+
+Silence Cut bu anları gerçek zamanlı olarak algılar ve sizin yerinize otomatik olarak halleder. Artık elle ileri sarmak yok. Artık boşa harcanan zaman yok.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 TEMEL ÖZELLİKLER
+
+✅ Otomatik Sessizlik Algılama
+Silence Cut, herhangi bir YouTube videosunun ses akışını sürekli analiz eder. Ses seviyesi belirlediğiniz eşiğin altına düştüğünde ve bu durum ayarlanan süre kadar devam ettiğinde, eklenti anında harekete geçer — sessiz bölümü atlar veya oynatma hızını artırır.
+
+✅ İki Eylem Modu
+• Atlama Modu: Sessiz bölümleri tamamen atlar, sizi doğrudan bir sonraki konuşmaya götürür.
+• Hızlandırma Modu: Sessizlik sırasında oynatmayı hızlandırır (16x'e kadar), böylece bağlamı korurken zamandan tasarruf edersiniz.
+
+✅ Müzik Algılama (İsteğe Bağlı)
+Müzik algılamayı etkinleştirerek sadece arka plan müziğinin çaldığı ve konuşmanın olmadığı bölümleri de yönetin. Giriş/çıkış müziği veya geçiş melodileri kullanan podcast ve eğitim videoları için idealdir.
+
+✅ Tamamen Özelleştirilebilir
+Her parametreyi tercihlerinize göre ayarlayın:
+• Sessizlik Eşiği: "Sessiz" sayılan ses seviyesini (dB cinsinden) belirleyin — -60 dB'den (çok hassas) -10 dB'ye (sadece tam sessizliği yakalar) kadar.
+• Minimum Süre: Eklentinin harekete geçmesi için sessiz bir anın ne kadar sürmesi gerektiğini tanımlayın — 0.1 saniyeden 3 saniyeye kadar.
+• Hız Çarpanı: Sessiz bölümlerde ne kadar hızlı oynatılacağını seçin — 2x'ten 16x'e kadar.
+• Müzik Hassasiyeti: Müzik bölümlerinin ne kadar agresif algılanacağını ayarlayın — düşükten yükseğe.
+
+✅ Canlı İzleme Paneli
+Popup, gerçek zamanlı olarak tam olarak neler olduğunu gösterir:
+• Görsel ölçer ile mevcut ses seviyesi
+• Aktif sessizlik ve müzik algılama göstergeleri
+• Atlama sayacı — kaç sessiz bölümün işlendiğini görün
+• Kazanılan süre — mevcut oturumda tam olarak ne kadar zaman kazandığınızı takip edin
+
+✅ Hafif ve Gizlilik Dostu
+• Veri toplama yok — her şey tarayıcınızda yerel olarak çalışır
+• Harici sunucu yok — ses analizi tamamen cihazınızda gerçekleşir
+• Minimum izin — sadece YouTube erişimi ve ayarlarınız için yerel depolama gerektirir
+• Arka plan kaynak kullanımı yok — eklenti yalnızca YouTube sekmelerinde etkinleşir
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 NASIL ÇALIŞIR?
+
+1. Silence Cut'ı yükleyin ve herhangi bir YouTube videosuna gidin.
+2. Eklenti otomatik olarak sesi analiz etmeye başlar.
+3. Sessizlik algılandığında, seçtiğiniz moda göre atlar veya hızlandırır.
+4. Eklenti simgesine tıklayarak istatistikleri görüntüleyin, ayarları düzenleyin veya özellikleri açıp kapatın.
+
+Hepsi bu kadar. Kurulum gerektirmez. Mantıklı varsayılan ayarlarla kutudan çıktığı gibi çalışır.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎓 KİMLER İÇİN İDEAL?
+
+• Ders kayıtları ve çevrimiçi kursları izleyen öğrenciler
+• Kodlama eğitimlerini takip eden yazılımcılar
+• YouTube'da podcast dinleyenler
+• Yabancı içerik izleyen dil öğrenenler
+• Zamanına değer veren ve içeriği daha verimli tüketmek isteyen herkes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚙️ VARSAYILAN AYARLAR
+
+Silence Cut, kutudan çıktığı gibi harika çalışacak şekilde önceden yapılandırılmıştır:
+• Mod: Hızlandırma (sessiz bölümlerde 4x)
+• Sessizlik Eşiği: -40 dB
+• Minimum Sessizlik Süresi: 0.1 saniye
+• Müzik Algılama: Kapalı (gerekirse manuel olarak etkinleştirin)
+
+Tüm ayarları istediğiniz zaman popup üzerinden değiştirebilirsiniz.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 İZİNLER AÇIKLAMASI
+
+• Depolama (Storage): Tercihlerinizi yerel olarak kaydeder, böylece ayarlar oturumlar arasında korunur.
+• Aktif Sekme (Active Tab): Ses analizi için YouTube sekmeleriyle iletişim kurmak gereklidir.
+• Site İzni (youtube.com): Gerçek zamanlı ses işleme için içerik scriptinin YouTube sayfalarında çalışmasına izin verir.
+
+Başka hiçbir izin istenmez. Verileriniz cihazınızda kalır.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 İPUÇLARI
+
+• Varsayılan ayarlarla başlayın ve gerekirse kademeli olarak ayarlayın.
+• Çok fazla bölüm atlanıyorsa, minimum süreyi artırın veya eşiği yükseltin (-10 dB'ye yaklaştırın).
+• Sürekliliği korumak ve yine de zaman kazanmak istiyorsanız Atlama modu yerine Hızlandırma modunu kullanın.
+• Uzun müzikal girişleri olan podcast tarzı videolar için müzik algılamayı etkinleştirin.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌍 DİLLER
+
+Silence Cut, İngilizce ve Türkçe olarak kullanılabilir. Eklenti otomatik olarak tarayıcınızın dilini kullanır.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Sessizliğe zaman harcamayı bırakın. Silence Cut sizin yerinize halletsin.
