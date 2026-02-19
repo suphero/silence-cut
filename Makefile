@@ -11,7 +11,6 @@ zip: clean
 		background/ \
 		content/ \
 		icons/ \
-		popup/ \
 		-x "*.DS_Store"
 	@echo "Created $(ZIP)"
 
