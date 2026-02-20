@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Silence Cut – Icon Generator</title>
+  <style>
+    body { background: #222; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 40px; text-align: center; }
+    .row { display: flex; gap: 40px; justify-content: center; align-items: flex-end; margin: 40px 0; }
+    .icon-box { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+    canvas { background: transparent; border: 1px dashed #555; }
+    .label { font-size: 14px; color: #aaa; }
+    button { padding: 10px 24px; font-size: 14px; cursor: pointer; background: #ff4e45; color: #fff; border: none; border-radius: 8px; margin: 4px; }
+    button:hover { opacity: 0.85; }
+    .download-all { padding: 14px 40px; font-size: 16px; background: #2ba640; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Silence Cut – Icon Generator</h1>
+  <p>Click individual buttons or download all at once.</p>
+
+  <div class="row">
+    <div class="icon-box">
+      <canvas id="c16" width="16" height="16"></canvas>
+      <div class="label">16 &times; 16</div>
+      <button onclick="dl('c16','icon-16.png')">Download</button>
+    </div>
+    <div class="icon-box">
+      <canvas id="c32" width="32" height="32"></canvas>
+      <div class="label">32 &times; 32</div>
+      <button onclick="dl('c32','icon-32.png')">Download</button>
+    </div>
+    <div class="icon-box">
+      <canvas id="c48" width="48" height="48"></canvas>
+      <div class="label">48 &times; 48</div>
+      <button onclick="dl('c48','icon-48.png')">Download</button>
+    </div>
+    <div class="icon-box">
+      <canvas id="c128" width="128" height="128"></canvas>
+      <div class="label">128 &times; 128</div>
+      <button onclick="dl('c128','icon-128.png')">Download</button>
+    </div>
+  </div>
+
+  <button class="download-all" onclick="downloadAll()">Download All PNGs</button>
+
+  <script>
+    function drawIcon(canvas) {
+      const s = canvas.width;
+      const ctx = canvas.getContext('2d');
+      const f = s / 128; // scale factor
+
+      // Background rounded rect
+      const r = 28 * f;
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.lineTo(s - r, 0);
+      ctx.quadraticCurveTo(s, 0, s, r);
+      ctx.lineTo(s, s - r);
+      ctx.quadraticCurveTo(s, s, s - r, s);
+      ctx.lineTo(r, s);
+      ctx.quadraticCurveTo(0, s, 0, s - r);
+      ctx.lineTo(0, r);
+      ctx.quadraticCurveTo(0, 0, r, 0);
+      ctx.closePath();
+
+      const grad = ctx.createLinearGradient(0, 0, s, s);
+      grad.addColorStop(0, '#FF4E45');
+      grad.addColorStop(1, '#FF7043');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Clip to rounded rect for clean edges
+      ctx.save();
+      ctx.clip();
+
+      ctx.fillStyle = '#fff';
+      ctx.strokeStyle = '#fff';
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Helper: rounded bar
+      function bar(x, y, w, h) {
+        const br = (w / 2) * f;
+        const bx = x * f, by = y * f, bw = w * f, bh = h * f;
+        ctx.beginPath();
+        ctx.moveTo(bx + br, by);
+        ctx.lineTo(bx + bw - br, by);
+        ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
+        ctx.lineTo(bx + bw, by + bh - br);
+        ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - br, by + bh);
+        ctx.lineTo(bx + br, by + bh);
+        ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - br);
+        ctx.lineTo(bx, by + br);
+        ctx.quadraticCurveTo(bx, by, bx + br, by);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Left waveform bars
+      bar(8, 42, 8, 44);
+      bar(21, 28, 8, 72);
+      bar(34, 36, 8, 56);
+
+      // Skip chevrons (centered at x=64)
+      ctx.lineWidth = 5 * f;
+      ctx.beginPath();
+      ctx.moveTo(50 * f, 44 * f);
+      ctx.lineTo(64 * f, 64 * f);
+      ctx.lineTo(50 * f, 84 * f);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(64 * f, 44 * f);
+      ctx.lineTo(78 * f, 64 * f);
+      ctx.lineTo(64 * f, 84 * f);
+      ctx.stroke();
+
+      // Right waveform bars
+      bar(86, 34, 8, 60);
+      bar(99, 44, 8, 40);
+
+      ctx.restore();
+    }
+
+    // Draw all sizes
+    ['c16', 'c32', 'c48', 'c128'].forEach(id => {
+      drawIcon(document.getElementById(id));
+    });
+
+    function dl(canvasId, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = document.getElementById(canvasId).toDataURL('image/png');
+      link.click();
+    }
+
+    async function downloadAll() {
+      for (const [id, name] of [['c16','icon-16.png'],['c32','icon-32.png'],['c48','icon-48.png'],['c128','icon-128.png']]) {
+        dl(id, name);
+        await new Promise(r => setTimeout(r, 300));
+      }
+    }
+  </script>
+</body>
+</html>

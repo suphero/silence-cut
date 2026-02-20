@@ -53,11 +53,12 @@
 
   .brand-logo {
     width: 100px; height: 100px;
-    background: linear-gradient(135deg, #ff4e45, #ff7043);
-    border-radius: 24px; display: flex; align-items: center; justify-content: center;
-    font-size: 48px; font-weight: 900; color: #fff;
     box-shadow: 0 8px 40px rgba(255, 78, 69, 0.4);
     margin-bottom: 28px;
+  }
+
+  .brand-logo svg, .center-logo svg, .icons-logo svg {
+    width: 100%; height: 100%; display: block;
   }
 
   .brand-name {
@@ -271,9 +272,7 @@
   }
 
   .center-logo {
-    width: 80px; height: 80px; background: linear-gradient(135deg, #ff4e45, #ff7043);
-    border-radius: 20px; display: flex; align-items: center; justify-content: center;
-    font-size: 40px; font-weight: 900; color: #fff;
+    width: 80px; height: 80px;
     box-shadow: 0 6px 30px rgba(255,78,69,0.4);
   }
 
@@ -376,9 +375,7 @@
   }
 
   .icons-logo {
-    width: 56px; height: 56px; background: linear-gradient(135deg, #ff4e45, #ff7043);
-    border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    font-size: 28px; font-weight: 900; color: #fff;
+    width: 56px; height: 56px;
     box-shadow: 0 4px 16px rgba(255,78,69,0.3);
   }
 
@@ -469,7 +466,7 @@
 <div class="screenshot-wrapper">
   <button class="download-btn" onclick="downloadScreenshot(this, 'silence-cut-global-1-brand.png')">Download — Brand</button>
   <div class="screenshot-frame slide-brand">
-    <div class="brand-logo">SC</div>
+    <div class="brand-logo"><svg viewBox="0 0 128 128"><defs><linearGradient id="bg1" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FF4E45"/><stop offset="100%" stop-color="#FF7043"/></linearGradient></defs><rect width="128" height="128" rx="28" fill="url(#bg1)"/><rect x="8" y="42" width="8" height="44" rx="4" fill="white"/><rect x="21" y="28" width="8" height="72" rx="4" fill="white"/><rect x="34" y="36" width="8" height="56" rx="4" fill="white"/><path d="M50 44 L64 64 L50 84" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M64 44 L78 64 L64 84" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><rect x="86" y="34" width="8" height="60" rx="4" fill="white"/><rect x="99" y="44" width="8" height="40" rx="4" fill="white"/></svg></div>
     <div class="brand-name">Silence Cut</div>
     <div class="brand-tagline">YouTube &bull; Silence &bull; Skip</div>
 
@@ -617,7 +614,7 @@
 
     <!-- Center branding -->
     <div class="center-brand">
-      <div class="center-logo">SC</div>
+      <div class="center-logo"><svg viewBox="0 0 128 128"><defs><linearGradient id="bg2" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FF4E45"/><stop offset="100%" stop-color="#FF7043"/></linearGradient></defs><rect width="128" height="128" rx="28" fill="url(#bg2)"/><rect x="8" y="42" width="8" height="44" rx="4" fill="white"/><rect x="21" y="28" width="8" height="72" rx="4" fill="white"/><rect x="34" y="36" width="8" height="56" rx="4" fill="white"/><path d="M50 44 L64 64 L50 84" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M64 44 L78 64 L64 84" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><rect x="86" y="34" width="8" height="60" rx="4" fill="white"/><rect x="99" y="44" width="8" height="40" rx="4" fill="white"/></svg></div>
       <div class="center-name">Silence Cut</div>
       <div class="center-globe">&#127760;</div>
     </div>
@@ -745,7 +742,7 @@
   <button class="download-btn" onclick="downloadScreenshot(this, 'silence-cut-global-5-features.png')">Download — Features</button>
   <div class="screenshot-frame slide-icons">
     <div class="icons-header">
-      <div class="icons-logo">SC</div>
+      <div class="icons-logo"><svg viewBox="0 0 128 128"><defs><linearGradient id="bg3" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#FF4E45"/><stop offset="100%" stop-color="#FF7043"/></linearGradient></defs><rect width="128" height="128" rx="28" fill="url(#bg3)"/><rect x="8" y="42" width="8" height="44" rx="4" fill="white"/><rect x="21" y="28" width="8" height="72" rx="4" fill="white"/><rect x="34" y="36" width="8" height="56" rx="4" fill="white"/><path d="M50 44 L64 64 L50 84" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M64 44 L78 64 L64 84" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><rect x="86" y="34" width="8" height="60" rx="4" fill="white"/><rect x="99" y="44" width="8" height="40" rx="4" fill="white"/></svg></div>
       <div class="icons-title">Silence Cut</div>
     </div>
     <div class="icons-grid">
