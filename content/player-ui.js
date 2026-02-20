@@ -20,7 +20,6 @@
   let isOpen = false;
   let buttonEl = null;
   let panelHost = null;
-  let shadow = null;
   let globalEventsRegistered = false;
 
   let statusData = {
@@ -36,8 +35,14 @@
 
   // ─── Helpers ──────────────────────────────────────────
 
-  function $(sel) { return shadow?.querySelector(sel); }
-  function $$(sel) { return shadow?.querySelectorAll(sel); }
+  function $(sel) { return panelHost?.querySelector(sel); }
+  function $$(sel) { return panelHost?.querySelectorAll(sel); }
+
+  function updateSliderFill(slider) {
+    if (!slider) return;
+    const pct = ((parseFloat(slider.value) - parseFloat(slider.min)) / (parseFloat(slider.max) - parseFloat(slider.min))) * 100;
+    slider.style.setProperty('--yt-slider-shape-gradient-percent', pct + '%');
+  }
 
   function formatTimeSaved(ms) {
     const totalSec = Math.floor(ms / 1000);
@@ -71,13 +76,13 @@
   }
 
   function readSettingsFromUI() {
-    if (!shadow) return settings;
+    if (!panelHost) return settings;
     return {
-      enabled: $('#sc-enabled')?.checked ?? settings.enabled,
-      silenceEnabled: $('#sc-sil-toggle')?.checked ?? settings.silenceEnabled,
+      enabled: $('#sc-enabled-item')?.getAttribute('aria-checked') === 'true',
+      silenceEnabled: $('#sc-sil-toggle')?.getAttribute('aria-checked') === 'true',
       silenceThreshold: parseInt($('#sc-threshold')?.value ?? settings.silenceThreshold),
       minSilenceDuration: parseFloat($('#sc-sil-dur')?.value ?? settings.minSilenceDuration),
-      musicEnabled: $('#sc-mus-toggle')?.checked ?? settings.musicEnabled,
+      musicEnabled: $('#sc-mus-toggle')?.getAttribute('aria-checked') === 'true',
       musicSensitivity: parseFloat($('#sc-mus-sens')?.value ?? settings.musicSensitivity),
       minMusicDuration: parseFloat($('#sc-mus-dur')?.value ?? settings.minMusicDuration),
       actionMode: settings.actionMode,
@@ -88,7 +93,7 @@
   // ─── Navigation ───────────────────────────────────────
 
   function showPage(pageId, isBack) {
-    if (!shadow) return;
+    if (!panelHost) return;
     $$('.sc-page').forEach((p) => p.classList.remove('active', 'back'));
     const target = $('#sc-page-' + pageId);
     if (target) {
@@ -100,12 +105,10 @@
   // ─── UI Sync ──────────────────────────────────────────
 
   function applySettingsToUI() {
-    if (!shadow || !settings) return;
+    if (!panelHost || !settings) return;
 
-    // Header
-    $('#sc-title').textContent = settings.actionMode === 'skip' ? msg('titleSkip') : msg('titleSpeed');
-    $('#sc-enabled').checked = settings.enabled;
-    $('#sc-enabled-label').textContent = settings.enabled ? msg('on') : msg('off');
+    // Enable toggle
+    $('#sc-enabled-item')?.setAttribute('aria-checked', settings.enabled ? 'true' : 'false');
 
     // Main page menu values
     const isSpeed = settings.actionMode === 'speed';
@@ -122,26 +125,37 @@
     $('#sc-speed').value = settings.speedMultiplier;
     $('#sc-speed-big').textContent = settings.speedMultiplier + 'x';
 
-    // Silence page
-    $('#sc-sil-toggle').checked = settings.silenceEnabled;
+    // Silence page (menu + slider pages)
+    $('#sc-sil-toggle')?.setAttribute('aria-checked', settings.silenceEnabled ? 'true' : 'false');
+    const thresholdText = settings.silenceThreshold + ' dB';
     $('#sc-threshold').value = settings.silenceThreshold;
-    $('#sc-threshold-val').textContent = settings.silenceThreshold + ' dB';
+    $('#sc-threshold-val').textContent = thresholdText;
+    $('#sc-threshold-menu').textContent = thresholdText;
+    const silDurText = settings.minSilenceDuration + 's';
     $('#sc-sil-dur').value = settings.minSilenceDuration;
-    $('#sc-sil-dur-val').textContent = settings.minSilenceDuration + 's';
+    $('#sc-sil-dur-val').textContent = silDurText;
+    $('#sc-sil-dur-menu').textContent = silDurText;
 
-    // Music page
-    $('#sc-mus-toggle').checked = settings.musicEnabled;
+    // Music page (menu + slider pages)
+    $('#sc-mus-toggle')?.setAttribute('aria-checked', settings.musicEnabled ? 'true' : 'false');
+    const sensText = '%' + Math.round(settings.musicSensitivity * 100);
     $('#sc-mus-sens').value = settings.musicSensitivity;
-    $('#sc-mus-sens-val').textContent = '%' + Math.round(settings.musicSensitivity * 100);
+    $('#sc-mus-sens-val').textContent = sensText;
+    $('#sc-mus-sens-menu').textContent = sensText;
+    const musDurText = settings.minMusicDuration + 's';
     $('#sc-mus-dur').value = settings.minMusicDuration;
-    $('#sc-mus-dur-val').textContent = settings.minMusicDuration + 's';
+    $('#sc-mus-dur-val').textContent = musDurText;
+    $('#sc-mus-dur-menu').textContent = musDurText;
+
+    // Update all slider fills
+    ['#sc-speed', '#sc-threshold', '#sc-sil-dur', '#sc-mus-sens', '#sc-mus-dur'].forEach((id) => updateSliderFill($(id)));
 
     updateThresholdLine();
     updateButtonState();
   }
 
   function updateThresholdLine() {
-    if (!shadow) return;
+    if (!panelHost) return;
     const val = parseInt($('#sc-threshold')?.value ?? -40);
     const pct = ((val + 60) / 50) * 100;
     const line = $('#sc-thr-line');
@@ -149,7 +163,7 @@
   }
 
   function updateStatus() {
-    if (!shadow || !isOpen) return;
+    if (!panelHost || !isOpen) return;
 
     const isLive = statusData.active && statusData.isAtLiveEdge;
     const dot = $('#sc-dot');
@@ -186,30 +200,39 @@
 
   function updateButtonState() {
     if (!buttonEl) return;
-    buttonEl.style.opacity = settings?.enabled ? '1' : '0.5';
+    buttonEl.setAttribute('aria-pressed', settings?.enabled ? 'true' : 'false');
+    const svg = buttonEl.querySelector('svg path');
+    if (svg) svg.setAttribute('fill-opacity', settings?.enabled ? '1' : '0.5');
   }
 
   // ─── Panel Events ────────────────────────────────────
 
   function bindPanelEvents() {
-    if (!shadow) return;
+    if (!panelHost) return;
 
     // Stop YouTube keyboard shortcuts
-    shadow.querySelector('.sc-panel').addEventListener('keydown', (e) => e.stopPropagation());
+    panelHost.querySelector('.sc-panel').addEventListener('keydown', (e) => e.stopPropagation());
 
-    // Header enable toggle
-    $('#sc-enabled').addEventListener('change', saveSettings);
+    // Enable toggle
+    $('#sc-enabled-item').addEventListener('click', () => {
+      const item = $('#sc-enabled-item');
+      const checked = item.getAttribute('aria-checked') !== 'true';
+      item.setAttribute('aria-checked', checked ? 'true' : 'false');
+      saveSettings();
+    });
 
     // Menu items → navigate to sub-pages
-    $$('.sc-menu-item[data-page]').forEach((item) => {
+    $$('.ytp-menuitem[data-page]').forEach((item) => {
       item.addEventListener('click', () => showPage(item.dataset.page, false));
     });
 
-    // Back buttons
+    // Back buttons (multi-level: use data-back on page, fallback to main)
     $$('.sc-back').forEach((btn) => {
       btn.addEventListener('click', () => {
+        const page = btn.closest('.sc-page');
+        const backTarget = page?.dataset.back || 'main';
         applySettingsToUI();
-        showPage('main', true);
+        showPage(backTarget, true);
       });
     });
 
@@ -225,41 +248,82 @@
     // Speed slider (inline in mode page)
     $('#sc-speed').addEventListener('input', () => {
       $('#sc-speed-big').textContent = $('#sc-speed').value + 'x';
+      updateSliderFill($('#sc-speed'));
       saveSettings();
       $('#sc-mode-val').textContent = msg('speedUp') + ' · ' + $('#sc-speed').value + 'x';
     });
 
     // Silence page
-    $('#sc-sil-toggle').addEventListener('change', () => {
+    $('#sc-sil-toggle').addEventListener('click', () => {
+      const el = $('#sc-sil-toggle');
+      const checked = el.getAttribute('aria-checked') !== 'true';
+      el.setAttribute('aria-checked', checked ? 'true' : 'false');
       saveSettings();
       applySettingsToUI();
     });
 
     $('#sc-threshold').addEventListener('input', () => {
-      $('#sc-threshold-val').textContent = $('#sc-threshold').value + ' dB';
+      const text = $('#sc-threshold').value + ' dB';
+      $('#sc-threshold-val').textContent = text;
+      $('#sc-threshold-menu').textContent = text;
+      updateSliderFill($('#sc-threshold'));
       updateThresholdLine();
       saveSettings();
     });
 
     $('#sc-sil-dur').addEventListener('input', () => {
-      $('#sc-sil-dur-val').textContent = parseFloat($('#sc-sil-dur').value).toFixed(1) + 's';
+      const text = parseFloat($('#sc-sil-dur').value).toFixed(1) + 's';
+      $('#sc-sil-dur-val').textContent = text;
+      $('#sc-sil-dur-menu').textContent = text;
+      updateSliderFill($('#sc-sil-dur'));
       saveSettings();
     });
 
     // Music page
-    $('#sc-mus-toggle').addEventListener('change', () => {
+    $('#sc-mus-toggle').addEventListener('click', () => {
+      const el = $('#sc-mus-toggle');
+      const checked = el.getAttribute('aria-checked') !== 'true';
+      el.setAttribute('aria-checked', checked ? 'true' : 'false');
       saveSettings();
       applySettingsToUI();
     });
 
     $('#sc-mus-sens').addEventListener('input', () => {
-      $('#sc-mus-sens-val').textContent = '%' + Math.round(parseFloat($('#sc-mus-sens').value) * 100);
+      const text = '%' + Math.round(parseFloat($('#sc-mus-sens').value) * 100);
+      $('#sc-mus-sens-val').textContent = text;
+      $('#sc-mus-sens-menu').textContent = text;
+      updateSliderFill($('#sc-mus-sens'));
       saveSettings();
     });
 
     $('#sc-mus-dur').addEventListener('input', () => {
-      $('#sc-mus-dur-val').textContent = parseFloat($('#sc-mus-dur').value).toFixed(1) + 's';
+      const text = parseFloat($('#sc-mus-dur').value).toFixed(1) + 's';
+      $('#sc-mus-dur-val').textContent = text;
+      $('#sc-mus-dur-menu').textContent = text;
+      updateSliderFill($('#sc-mus-dur'));
       saveSettings();
+    });
+
+    // Generic +/- increment buttons
+    $$('.ytp-variable-speed-panel-increment-button[data-target]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const slider = $('#' + btn.dataset.target);
+        if (!slider) return;
+        const step = parseFloat(btn.dataset.step);
+        const val = Math.round((parseFloat(slider.value) + step) * 1000) / 1000;
+        slider.value = Math.min(parseFloat(slider.max), Math.max(parseFloat(slider.min), val));
+        slider.dispatchEvent(new Event('input'));
+      });
+    });
+
+    // Generic preset buttons
+    $$('.ytp-variable-speed-panel-preset-button[data-target]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const slider = $('#' + btn.dataset.target);
+        if (!slider) return;
+        slider.value = btn.dataset.value;
+        slider.dispatchEvent(new Event('input'));
+      });
     });
   }
 
@@ -268,14 +332,14 @@
   function createButton() {
     const btn = document.createElement('button');
     btn.className = 'ytp-button silence-cut-btn';
-    btn.title = 'Silence Cut';
-    btn.style.cssText = 'cursor:pointer;border:none;background:none;padding:0;';
+    btn.title = '';
+    btn.setAttribute('aria-label', 'Silence Cut');
+    btn.setAttribute('data-tooltip-target-id', 'silence-cut-btn');
+    btn.setAttribute('data-title-no-tooltip', 'Silence Cut');
+    btn.setAttribute('data-tooltip-title', 'Silence Cut');
     btn.innerHTML = `
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
-        <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.5"/>
-        <rect x="8.5" y="7" width="2" height="10" rx="0.5" fill="white"/>
-        <rect x="13.5" y="7" width="2" height="10" rx="0.5" fill="white"/>
-        <line x1="5" y1="19" x2="19" y2="5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <svg fill="none" height="24" viewBox="0 0 24 24" width="24">
+        <path d="M9.64 7.64c.23-.5.36-1.05.36-1.64 0-2.21-1.79-4-4-4S2 3.79 2 6s1.79 4 4 4c.59 0 1.14-.13 1.64-.36L10 12l-2.36 2.36C7.14 14.13 6.59 14 6 14c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4c0-.59-.13-1.14-.36-1.64L12 14l7 7h3v-1L9.64 7.64zM6 8c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm0 12c-1.1 0-2-.89-2-2s.9-2 2-2 2 .89 2 2-.9 2-2 2zm6-7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5.5.22.5.5-.22.5-.5.5zM19 3l-6 6 2 2 7-7V3z" fill="white" fill-opacity="1"></path>
       </svg>`;
     btn.addEventListener('click', (e) => {
       e.preventDefault();
@@ -294,7 +358,7 @@
       if (isOpen) {
         showPage('main', false);
         const player = document.querySelector('#movie_player');
-        const panel = shadow?.querySelector('.sc-panel');
+        const panel = panelHost.querySelector('.sc-panel');
         if (player && panel) {
           const availableHeight = player.clientHeight - 72;
           panel.style.maxHeight = availableHeight + 'px';
@@ -330,11 +394,9 @@
     }
 
     panelHost = document.createElement('div');
-    panelHost.className = 'silence-cut-panel-host';
+    panelHost.className = 'ytp-popup silence-cut-panel-host';
     panelHost.style.cssText = 'position:absolute;bottom:60px;right:12px;z-index:69;display:none;';
-
-    shadow = panelHost.attachShadow({ mode: 'closed' });
-    shadow.innerHTML = buildTemplate();
+    panelHost.innerHTML = buildTemplate();
 
     player.appendChild(panelHost);
 
@@ -414,64 +476,59 @@
 
       <!-- ===== MAIN PAGE ===== -->
       <div class="sc-page active" id="sc-page-main">
-        <div class="sc-header">
-          <span class="sc-title" id="sc-title">${msg('titleSpeed')}</span>
-          <div class="sc-toggle-group">
-            <span class="sc-enabled-label" id="sc-enabled-label">${msg('off')}</span>
-            <label class="sc-switch">
-              <input type="checkbox" id="sc-enabled">
-              <span class="sc-toggle"></span>
-            </label>
+        <div class="ytp-panel-menu" role="menu">
+          <div class="ytp-menuitem" role="menuitemcheckbox" aria-checked="true" tabindex="0" id="sc-enabled-item">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42A6.92 6.92 0 0 1 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.05.88-3.89 2.29-5.17L5.88 5.46A8.96 8.96 0 0 0 3 12a9 9 0 0 0 18 0c0-2.74-1.23-5.18-3.17-6.83z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">Silence Cut</div>
+            <div class="ytp-menuitem-content"><div class="ytp-menuitem-toggle-checkbox"></div></div>
+          </div>
+          <div class="ytp-menuitem-separator"></div>
+          <div class="ytp-menuitem" aria-haspopup="true" role="menuitem" tabindex="0" data-page="mode">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M12 1c1.44 0 2.87.28 4.21.83a11 11 0 0 1 3.45 2.27l-1.81 1.05A9 9 0 0 0 3 12a9 9 0 0 0 18-.00l-.01-.44a8.99 8.99 0 0 0-.14-1.20l1.81-1.05A11.00 11.00 0 0 1 10.51 22.9 11 11 0 0 1 12 1Zm7.08 6.25-7.96 3.25a1.74 1.74 0 1 0 1.73 2.99l6.8-5.26a.57.57 0 0 0-.56-.98Z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('mode')}</div>
+            <div class="ytp-menuitem-content"><span id="sc-mode-val">${msg('speedUp')}</span></div>
+          </div>
+          <div class="ytp-menuitem" aria-haspopup="true" role="menuitem" tabindex="0" data-page="silence">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M4.34 2.93L2.93 4.34 7.29 8.7 7 9H3v6h4l5 5v-6.59l4.18 4.18c-.65.49-1.38.88-2.18 1.11v2.06a8.94 8.94 0 0 0 3.61-1.75l2.05 2.05 1.41-1.41L4.34 2.93zM10 15.17L7.83 13H5v-2h2.83l.88-.88L10 11.41v3.76zM19 12c0 .82-.15 1.61-.41 2.34l1.53 1.53c.56-1.17.88-2.48.88-3.87 0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zm-7-8l-1.88 1.88L12 7.76V4zm4.5 8A4.5 4.5 0 0 0 14 7.97v1.79l2.48 2.48c.01-.08.02-.16.02-.24z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('silenceDetection')}</div>
+            <div class="ytp-menuitem-content"><span id="sc-sil-val">${msg('on')}</span></div>
+          </div>
+          <div class="ytp-menuitem" aria-haspopup="true" role="menuitem" tabindex="0" data-page="music">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6zM10 19a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('musicDetection')}</div>
+            <div class="ytp-menuitem-content"><span id="sc-mus-val">${msg('off')}</span></div>
           </div>
         </div>
-
-        <div class="sc-menu">
-          <div class="sc-menu-item" data-page="mode">
-            <span class="sc-menu-label">${msg('mode')}</span>
-            <span class="sc-menu-val" id="sc-mode-val">${msg('speedUp')}</span>
-            <span class="sc-arrow">&#8250;</span>
+        <div class="sc-panel-footer">
+          <div class="sc-info">
+            <span class="sc-dot" id="sc-dot"></span>
+            <span id="sc-status-text">${msg('waiting')}</span>
+            <span class="sc-info-sep">&middot;</span>
+            <span id="sc-skip-count">${msg('skipCount', ['0'])}</span>
+            <span class="sc-info-time">&nbsp;&#9201; <span id="sc-time-saved">0s</span></span>
           </div>
-          <div class="sc-menu-item" data-page="silence">
-            <span class="sc-menu-label">${msg('silenceDetection')}</span>
-            <span class="sc-menu-val" id="sc-sil-val">${msg('on')}</span>
-            <span class="sc-arrow">&#8250;</span>
-          </div>
-          <div class="sc-menu-item" data-page="music">
-            <span class="sc-menu-label">${msg('musicDetection')}</span>
-            <span class="sc-menu-val" id="sc-mus-val">${msg('off')}</span>
-            <span class="sc-arrow">&#8250;</span>
-          </div>
-        </div>
-
-        <div class="sc-info">
-          <span class="sc-dot" id="sc-dot"></span>
-          <span id="sc-status-text">${msg('waiting')}</span>
-          <span class="sc-info-sep">&middot;</span>
-          <span id="sc-skip-count">${msg('skipCount', ['0'])}</span>
-          <span class="sc-info-time">&nbsp;&#9201; <span id="sc-time-saved">0s</span></span>
-        </div>
-
-        <div class="sc-meter-section">
-          <div class="sc-meter-row">
-            <span class="sc-meter-label">${msg('volumeLevel')}</span>
-            <span class="sc-vol-db" id="sc-vol-db">-- dB</span>
-          </div>
-          <div class="sc-volume-meter">
-            <div class="sc-volume-bar" id="sc-vol-bar"></div>
-            <div class="sc-threshold-line" id="sc-thr-line"></div>
-          </div>
-          <div class="sc-tags">
-            <span class="sc-tag sc-tag-silence hidden" id="sc-tag-sil">${msg('silence')}</span>
-            <span class="sc-tag sc-tag-music hidden" id="sc-tag-mus">${msg('music')}</span>
+          <div class="sc-meter-section">
+            <div class="sc-meter-row">
+              <span class="sc-meter-label">${msg('volumeLevel')}</span>
+              <span class="sc-vol-db" id="sc-vol-db">-- dB</span>
+            </div>
+            <div class="sc-volume-meter">
+              <div class="sc-volume-bar" id="sc-vol-bar"></div>
+              <div class="sc-threshold-line" id="sc-thr-line"></div>
+            </div>
+            <div class="sc-tags">
+              <span class="sc-tag sc-tag-silence hidden" id="sc-tag-sil">${msg('silence')}</span>
+              <span class="sc-tag sc-tag-music hidden" id="sc-tag-mus">${msg('music')}</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- ===== MODE PAGE ===== -->
       <div class="sc-page" id="sc-page-mode">
-        <div class="sc-page-header">
-          <button class="sc-back" type="button">&#8249;</button>
-          <span>${msg('mode')}</span>
+        <div class="ytp-panel-header">
+          <div class="ytp-panel-back-button-container"><button class="ytp-button ytp-panel-back-button sc-back" aria-label="${msg('mode')}"></button></div>
+          <span class="ytp-panel-title" role="heading" aria-level="2">${msg('mode')}</span>
         </div>
         <div class="sc-options">
           <div class="sc-mode-opt" data-value="skip">
@@ -483,90 +540,202 @@
             <span>${msg('speedUp')}</span>
           </div>
         </div>
-        <div class="sc-speed-inline hidden" id="sc-speed-inline">
-          <div class="sc-slider-page">
-            <div class="sc-big-value" id="sc-speed-big">4x</div>
-            <input type="range" id="sc-speed" min="2" max="16" value="4" step="1">
-            <div class="sc-range-labels"><span>2x</span><span>16x</span></div>
+        <div class="hidden" id="sc-speed-inline">
+          <div class="ytp-menuitem-separator"></div>
+          <div class="ytp-variable-speed-panel-content" tabindex="0">
+            <div class="ytp-speed-display-container">
+              <div class="ytp-variable-speed-panel-display" aria-live="polite"><span id="sc-speed-big">4x</span></div>
+            </div>
+            <div class="ytp-variable-speed-panel-slider-container">
+              <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-speed" data-step="-1"><span>-</span></button>
+              <div class="ytp-input-slider-section">
+                <input class="ytp-input-slider ytp-varispeed-input-slider" type="range" id="sc-speed" min="2" max="16" value="4" step="1">
+              </div>
+              <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-speed" data-step="1"><span>+</span></button>
+            </div>
+            <div class="ytp-variable-speed-panel-chips">
+              <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-speed" data-value="2"><span>2x</span></button></div>
+              <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-speed" data-value="4"><span>4x</span></button></div>
+              <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-speed" data-value="8"><span>8x</span></button></div>
+              <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-speed" data-value="16"><span>16x</span></button></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== SILENCE PAGE ===== -->
+      <!-- ===== SILENCE MENU PAGE ===== -->
       <div class="sc-page" id="sc-page-silence">
-        <div class="sc-page-header">
-          <button class="sc-back" type="button">&#8249;</button>
-          <span>${msg('silenceDetection')}</span>
-          <label class="sc-switch sc-hdr-toggle">
-            <input type="checkbox" id="sc-sil-toggle">
-            <span class="sc-toggle"></span>
-          </label>
+        <div class="ytp-panel-header">
+          <div class="ytp-panel-back-button-container"><button class="ytp-button ytp-panel-back-button sc-back" aria-label="${msg('silenceDetection')}"></button></div>
+          <span class="ytp-panel-title" role="heading" aria-level="2">${msg('silenceDetection')}</span>
         </div>
-        <div class="sc-slider-page">
-          <div class="sc-slider-row">
-            <span>${msg('silenceThreshold')}</span>
-            <span class="sc-slider-val" id="sc-threshold-val">-40 dB</span>
+        <div class="ytp-panel-menu" role="menu">
+          <div class="ytp-menuitem" role="menuitemcheckbox" aria-checked="false" tabindex="0" id="sc-sil-toggle">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42A6.92 6.92 0 0 1 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.05.88-3.89 2.29-5.17L5.88 5.46A8.96 8.96 0 0 0 3 12a9 9 0 0 0 18 0c0-2.74-1.23-5.18-3.17-6.83z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('enabled')}</div>
+            <div class="ytp-menuitem-content"><div class="ytp-menuitem-toggle-checkbox"></div></div>
           </div>
-          <input type="range" id="sc-threshold" min="-60" max="-10" value="-40" step="1">
-          <div class="sc-range-labels"><span>-60 dB</span><span>-10 dB</span></div>
-
-          <div class="sc-slider-row sc-mt">
-            <span>${msg('minDuration')}</span>
-            <span class="sc-slider-val" id="sc-sil-dur-val">0.1s</span>
+          <div class="ytp-menuitem" aria-haspopup="true" role="menuitem" tabindex="0" data-page="sil-threshold">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('silenceThreshold')}</div>
+            <div class="ytp-menuitem-content"><span id="sc-threshold-menu">-40 dB</span></div>
           </div>
-          <input type="range" id="sc-sil-dur" min="0.1" max="3.0" value="0.1" step="0.1">
-          <div class="sc-range-labels"><span>0.1s</span><span>3.0s</span></div>
+          <div class="ytp-menuitem" aria-haspopup="true" role="menuitem" tabindex="0" data-page="sil-duration">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0 0 12 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('minDuration')}</div>
+            <div class="ytp-menuitem-content"><span id="sc-sil-dur-menu">0.1s</span></div>
+          </div>
         </div>
       </div>
 
-      <!-- ===== MUSIC PAGE ===== -->
-      <div class="sc-page" id="sc-page-music">
-        <div class="sc-page-header">
-          <button class="sc-back" type="button">&#8249;</button>
-          <span>${msg('musicDetection')}</span>
-          <label class="sc-switch sc-hdr-toggle">
-            <input type="checkbox" id="sc-mus-toggle">
-            <span class="sc-toggle"></span>
-          </label>
+      <!-- ===== SILENCE THRESHOLD PAGE ===== -->
+      <div class="sc-page" data-back="silence" id="sc-page-sil-threshold">
+        <div class="ytp-panel-header">
+          <div class="ytp-panel-back-button-container"><button class="ytp-button ytp-panel-back-button sc-back" aria-label="${msg('silenceThreshold')}"></button></div>
+          <span class="ytp-panel-title" role="heading" aria-level="2">${msg('silenceThreshold')}</span>
         </div>
-        <div class="sc-slider-page">
-          <div class="sc-slider-row">
-            <span>${msg('sensitivity')}</span>
-            <span class="sc-slider-val" id="sc-mus-sens-val">%50</span>
+        <div class="ytp-variable-speed-panel-content" tabindex="0">
+          <div class="ytp-speed-display-container">
+            <div class="ytp-variable-speed-panel-display" aria-live="polite"><span id="sc-threshold-val">-40 dB</span></div>
           </div>
-          <input type="range" id="sc-mus-sens" min="0" max="1" value="0.5" step="0.05">
-          <div class="sc-range-labels"><span>${msg('low')}</span><span>${msg('high')}</span></div>
+          <div class="ytp-variable-speed-panel-slider-container">
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-threshold" data-step="-1"><span>-</span></button>
+            <div class="ytp-input-slider-section">
+              <input class="ytp-input-slider ytp-varispeed-input-slider" type="range" id="sc-threshold" min="-60" max="-10" value="-40" step="1">
+            </div>
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-threshold" data-step="1"><span>+</span></button>
+          </div>
+          <div class="ytp-variable-speed-panel-chips">
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-threshold" data-value="-50"><span>-50 dB</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-threshold" data-value="-40"><span>-40 dB</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-threshold" data-value="-30"><span>-30 dB</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-threshold" data-value="-20"><span>-20 dB</span></button></div>
+          </div>
+        </div>
+      </div>
 
-          <div class="sc-slider-row sc-mt">
-            <span>${msg('minDuration')}</span>
-            <span class="sc-slider-val" id="sc-mus-dur-val">1.0s</span>
+      <!-- ===== SILENCE DURATION PAGE ===== -->
+      <div class="sc-page" data-back="silence" id="sc-page-sil-duration">
+        <div class="ytp-panel-header">
+          <div class="ytp-panel-back-button-container"><button class="ytp-button ytp-panel-back-button sc-back" aria-label="${msg('minDuration')}"></button></div>
+          <span class="ytp-panel-title" role="heading" aria-level="2">${msg('minDuration')}</span>
+        </div>
+        <div class="ytp-variable-speed-panel-content" tabindex="0">
+          <div class="ytp-speed-display-container">
+            <div class="ytp-variable-speed-panel-display" aria-live="polite"><span id="sc-sil-dur-val">0.1s</span></div>
           </div>
-          <input type="range" id="sc-mus-dur" min="0.5" max="5.0" value="1.0" step="0.5">
-          <div class="sc-range-labels"><span>0.5s</span><span>5.0s</span></div>
+          <div class="ytp-variable-speed-panel-slider-container">
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-sil-dur" data-step="-0.1"><span>-</span></button>
+            <div class="ytp-input-slider-section">
+              <input class="ytp-input-slider ytp-varispeed-input-slider" type="range" id="sc-sil-dur" min="0.1" max="3.0" value="0.1" step="0.1">
+            </div>
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-sil-dur" data-step="0.1"><span>+</span></button>
+          </div>
+          <div class="ytp-variable-speed-panel-chips">
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-sil-dur" data-value="0.1"><span>0.1s</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-sil-dur" data-value="0.5"><span>0.5s</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-sil-dur" data-value="1.0"><span>1.0s</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-sil-dur" data-value="2.0"><span>2.0s</span></button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MUSIC MENU PAGE ===== -->
+      <div class="sc-page" id="sc-page-music">
+        <div class="ytp-panel-header">
+          <div class="ytp-panel-back-button-container"><button class="ytp-button ytp-panel-back-button sc-back" aria-label="${msg('musicDetection')}"></button></div>
+          <span class="ytp-panel-title" role="heading" aria-level="2">${msg('musicDetection')}</span>
+        </div>
+        <div class="ytp-panel-menu" role="menu">
+          <div class="ytp-menuitem" role="menuitemcheckbox" aria-checked="false" tabindex="0" id="sc-mus-toggle">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42A6.92 6.92 0 0 1 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.05.88-3.89 2.29-5.17L5.88 5.46A8.96 8.96 0 0 0 3 12a9 9 0 0 0 18 0c0-2.74-1.23-5.18-3.17-6.83z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('enabled')}</div>
+            <div class="ytp-menuitem-content"><div class="ytp-menuitem-toggle-checkbox"></div></div>
+          </div>
+          <div class="ytp-menuitem" aria-haspopup="true" role="menuitem" tabindex="0" data-page="mus-sensitivity">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('sensitivity')}</div>
+            <div class="ytp-menuitem-content"><span id="sc-mus-sens-menu">%50</span></div>
+          </div>
+          <div class="ytp-menuitem" aria-haspopup="true" role="menuitem" tabindex="0" data-page="mus-duration">
+            <div class="ytp-menuitem-icon"><svg fill="none" height="24" viewBox="0 0 24 24" width="24"><path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42A8.962 8.962 0 0 0 12 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" fill="white"/></svg></div>
+            <div class="ytp-menuitem-label">${msg('minDuration')}</div>
+            <div class="ytp-menuitem-content"><span id="sc-mus-dur-menu">1.0s</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MUSIC SENSITIVITY PAGE ===== -->
+      <div class="sc-page" data-back="music" id="sc-page-mus-sensitivity">
+        <div class="ytp-panel-header">
+          <div class="ytp-panel-back-button-container"><button class="ytp-button ytp-panel-back-button sc-back" aria-label="${msg('sensitivity')}"></button></div>
+          <span class="ytp-panel-title" role="heading" aria-level="2">${msg('sensitivity')}</span>
+        </div>
+        <div class="ytp-variable-speed-panel-content" tabindex="0">
+          <div class="ytp-speed-display-container">
+            <div class="ytp-variable-speed-panel-display" aria-live="polite"><span id="sc-mus-sens-val">%50</span></div>
+          </div>
+          <div class="ytp-variable-speed-panel-slider-container">
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-mus-sens" data-step="-0.05"><span>-</span></button>
+            <div class="ytp-input-slider-section">
+              <input class="ytp-input-slider ytp-varispeed-input-slider" type="range" id="sc-mus-sens" min="0" max="1" value="0.5" step="0.05">
+            </div>
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-mus-sens" data-step="0.05"><span>+</span></button>
+          </div>
+          <div class="ytp-variable-speed-panel-chips">
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-sens" data-value="0.25"><span>%25</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-sens" data-value="0.5"><span>%50</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-sens" data-value="0.75"><span>%75</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-sens" data-value="1"><span>%100</span></button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MUSIC DURATION PAGE ===== -->
+      <div class="sc-page" data-back="music" id="sc-page-mus-duration">
+        <div class="ytp-panel-header">
+          <div class="ytp-panel-back-button-container"><button class="ytp-button ytp-panel-back-button sc-back" aria-label="${msg('minDuration')}"></button></div>
+          <span class="ytp-panel-title" role="heading" aria-level="2">${msg('minDuration')}</span>
+        </div>
+        <div class="ytp-variable-speed-panel-content" tabindex="0">
+          <div class="ytp-speed-display-container">
+            <div class="ytp-variable-speed-panel-display" aria-live="polite"><span id="sc-mus-dur-val">1.0s</span></div>
+          </div>
+          <div class="ytp-variable-speed-panel-slider-container">
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-mus-dur" data-step="-0.5"><span>-</span></button>
+            <div class="ytp-input-slider-section">
+              <input class="ytp-input-slider ytp-varispeed-input-slider" type="range" id="sc-mus-dur" min="0.5" max="5.0" value="1.0" step="0.5">
+            </div>
+            <button class="ytp-button ytp-variable-speed-panel-button ytp-variable-speed-panel-increment-button" data-target="sc-mus-dur" data-step="0.5"><span>+</span></button>
+          </div>
+          <div class="ytp-variable-speed-panel-chips">
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-dur" data-value="0.5"><span>0.5s</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-dur" data-value="1"><span>1.0s</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-dur" data-value="2"><span>2.0s</span></button></div>
+            <div class="ytp-variable-speed-panel-preset-button-wrapper"><button class="ytp-button ytp-variable-speed-panel-preset-button ytp-variable-speed-panel-button" data-target="sc-mus-dur" data-value="3"><span>3.0s</span></button></div>
+          </div>
         </div>
       </div>
 
     </div>`;
   }
 
-  // ─── CSS ──────────────────────────────────────────────
+  // ─── CSS (only custom components — YouTube handles ytp-* classes) ───
 
   const PANEL_CSS = `
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .silence-cut-panel-host *,
+    .silence-cut-panel-host *::before,
+    .silence-cut-panel-host *::after { box-sizing: border-box; }
 
     .sc-panel {
       width: 300px;
       overflow-y: auto;
       overflow-x: hidden;
-      background: rgba(28, 28, 28, 0.94);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
       border-radius: 12px;
       color: #f1f1f1;
-      font-family: 'Roboto', Arial, sans-serif;
+      font-family: 'Roboto', 'Arial', sans-serif;
       font-size: 14px;
       line-height: 1.4;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
       -webkit-font-smoothing: antialiased;
     }
 
@@ -575,46 +744,22 @@
     .sc-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
 
     /* ── Pages ── */
-    .sc-page { display: none; padding: 12px 0; }
-    .sc-page.active { display: block; animation: scSlideIn 0.12s ease-out; }
-    .sc-page.active.back { animation: scSlideBack 0.12s ease-out; }
+    .sc-page { display: none; padding: 8px 0; }
+    .sc-page.active { display: flex; flex-direction: column; animation: scSlideIn 0.15s ease-out; }
+    .sc-page > .ytp-panel-menu { flex: 1; min-height: 0; }
+    .sc-panel-footer { flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.1); }
+    .sc-page.active.back { animation: scSlideBack 0.15s ease-out; }
     @keyframes scSlideIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
     @keyframes scSlideBack { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
 
-    /* ── Header ── */
-    .sc-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .sc-title { font-size: 14px; font-weight: 500; }
-    .sc-toggle-group { display: flex; align-items: center; gap: 8px; }
-    .sc-enabled-label { font-size: 12px; color: rgba(255,255,255,0.4); }
-
-    /* ── Toggle Switch ── */
-    .sc-switch {
-      position: relative; display: inline-block;
-      width: 36px; height: 20px; flex-shrink: 0; cursor: pointer;
-    }
-    .sc-switch input { opacity:0; width:0; height:0; position:absolute; }
-    .sc-toggle {
-      position: absolute; cursor: pointer; inset: 0;
-      background: rgba(255,255,255,0.2); border-radius: 20px; transition: background 0.2s;
-    }
-    .sc-toggle::before {
-      content: ''; position: absolute;
-      width: 16px; height: 16px; left: 2px; bottom: 2px;
-      background: white; border-radius: 50%; transition: transform 0.2s;
-    }
-    .sc-switch input:checked + .sc-toggle { background: #3ea6ff; }
-    .sc-switch input:checked + .sc-toggle::before { transform: translateX(16px); }
+    /* ── Separator (fallback if YouTube CSS doesn't style it) ── */
+    .silence-cut-panel-host .ytp-menuitem-separator { border-top: 1px solid rgba(255,255,255,0.1); }
 
     /* ── Info Bar ── */
     .sc-info {
       display: flex; align-items: center; gap: 5px;
       padding: 10px 16px;
-      font-size: 12px; color: rgba(255,255,255,0.5);
-      border-top: 1px solid rgba(255,255,255,0.06);
+      font-size: 12px; color: #f1f1f1;
     }
     .sc-dot {
       width: 6px; height: 6px; border-radius: 50%;
@@ -624,38 +769,26 @@
     .sc-dot.live { background: #ff4e45; box-shadow: 0 0 6px #ff4e45; }
     .sc-info-time { margin-left: auto; font-weight: 500; color: rgba(255,255,255,0.7); white-space: nowrap; }
 
-    /* ── Menu ── */
-    .sc-menu { padding: 4px 0; }
-    .sc-menu-item {
-      display: flex; align-items: center; padding: 10px 16px;
-      cursor: pointer; transition: background 0.1s;
-    }
-    .sc-menu-item:hover { background: rgba(255,255,255,0.1); }
-    .sc-menu-label { flex: 1; font-size: 14px; }
-    .sc-menu-val { font-size: 14px; color: rgba(255,255,255,0.5); margin-right: 4px; }
-    .sc-arrow { font-size: 20px; color: rgba(255,255,255,0.3); line-height: 1; }
-
     /* ── Meter Section ── */
     .sc-meter-section {
-      padding: 8px 16px 4px;
-      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 8px 16px 8px;
     }
     .sc-meter-row {
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
     }
     .sc-meter-label {
-      font-size: 11px; color: rgba(255,255,255,0.4);
+      font-size: 11px; color: #f1f1f1;
       text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .sc-vol-db { font-size: 11px; color: rgba(255,255,255,0.4); }
+    .sc-vol-db { font-size: 11px; color: #f1f1f1; }
     .sc-volume-meter {
-      position: relative; height: 6px;
-      background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;
+      position: relative; height: 4px;
+      background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
     }
     .sc-volume-bar {
       height: 100%; width: 0%;
       background: linear-gradient(90deg, #2ba640, #ffc107, #ff4e45);
-      border-radius: 3px; transition: width 80ms ease;
+      border-radius: 2px; transition: width 80ms ease;
     }
     .sc-threshold-line {
       position: absolute; top: 0; bottom: 0; width: 2px;
@@ -670,22 +803,6 @@
     .sc-tag-silence { background: rgba(43,166,64,0.15); color: #2ba640; border: 1px solid rgba(43,166,64,0.3); }
     .sc-tag-music { background: rgba(156,39,176,0.15); color: #9c27b0; border: 1px solid rgba(156,39,176,0.3); }
 
-    /* ── Sub-page Header ── */
-    .sc-page-header {
-      display: flex; align-items: center; gap: 8px;
-      padding: 0 16px 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      font-size: 14px; font-weight: 500;
-    }
-    .sc-hdr-toggle { margin-left: auto; }
-    .sc-back {
-      background: none; border: none; color: #f1f1f1;
-      font-size: 28px; cursor: pointer; padding: 0;
-      line-height: 1; width: 24px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .sc-back:hover { color: #3ea6ff; }
-
     /* ── Options List (Mode) ── */
     .sc-options { padding: 4px 0; }
     .sc-mode-opt {
@@ -698,37 +815,6 @@
       color: #3ea6ff; visibility: hidden;
     }
     .sc-mode-opt.selected .sc-check { visibility: visible; }
-
-    /* ── Inline Speed (inside mode page) ── */
-    .sc-speed-inline { border-top: 1px solid rgba(255,255,255,0.06); }
-
-    /* ── Slider Pages ── */
-    .sc-slider-page { padding: 16px; }
-    .sc-slider-row {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 8px; font-size: 13px;
-    }
-    .sc-slider-val { color: rgba(255,255,255,0.5); font-weight: 500; }
-    .sc-mt { margin-top: 20px; }
-    .sc-big-value {
-      text-align: center; font-size: 24px; font-weight: 500;
-      margin-bottom: 16px; color: #f1f1f1;
-    }
-    input[type='range'] {
-      -webkit-appearance: none; appearance: none;
-      width: 100%; height: 4px;
-      background: rgba(255,255,255,0.2); border-radius: 2px;
-      outline: none; cursor: pointer;
-    }
-    input[type='range']::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none;
-      width: 14px; height: 14px; border-radius: 50%;
-      background: #3ea6ff; cursor: pointer; border: none;
-    }
-    .sc-range-labels {
-      display: flex; justify-content: space-between;
-      margin-top: 6px; font-size: 11px; color: rgba(255,255,255,0.3);
-    }
 
     /* ── Utility ── */
     .hidden { display: none !important; }
