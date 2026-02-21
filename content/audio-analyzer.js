@@ -506,11 +506,18 @@
 
       if (silenceReady || musicReady) {
         const reason = silenceReady ? 'silence' : 'music';
+        if (!isSkipping) {
+          // Record original playback rate on first entry
+          if (settings.actionMode === 'speed') {
+            originalPlaybackRate = videoElement.playbackRate;
+          }
+          skippedCount++;
+        }
         if (!isSkipping || skipReason !== reason) {
           skipReason = reason;
         }
         isSkipping = true;
-        handleSkip();
+        handleSkip(volumeDB);
       } else if (isSkipping && !silenceReady && !musicReady) {
         exitSkip();
       }
@@ -529,23 +536,33 @@
     }, ANALYSIS_INTERVAL_MS);
   }
 
-  function handleSkip() {
+  // Dynamic intensity: as volume approaches the silence threshold, decelerate
+  // so the transition back to speech is smooth — no abrupt stop or rewind needed.
+  //
+  //   Deep silence → intensity 1.0 → full speed/skip
+  //   Near threshold → intensity ~0   → nearly normal speed/tiny skip
+  //
+  // Squared curve ensures high multipliers (8x, 16x) also decelerate
+  // aggressively near the threshold, not just low ones like 2x.
+  const RAMP_DB = 8;
+
+  function handleSkip(volumeDB) {
     if (!videoElement || videoElement.paused) return;
 
+    const dist = settings.silenceThreshold - volumeDB; // positive = in silence
+    const linear = Math.min(1, Math.max(0, dist / RAMP_DB));
+    const intensity = linear * linear; // squared for aggressive deceleration
+
     if (settings.actionMode === 'skip') {
-      videoElement.currentTime += SKIP_INCREMENT;
-      timeSavedMs += SKIP_INCREMENT * 1000;
-      skippedCount++;
+      const increment = SKIP_INCREMENT * Math.max(0.05, intensity);
+      videoElement.currentTime += increment;
+      timeSavedMs += increment * 1000;
     } else if (settings.actionMode === 'speed') {
-      if (videoElement.playbackRate !== settings.speedMultiplier) {
-        originalPlaybackRate = videoElement.playbackRate;
-        videoElement.playbackRate = settings.speedMultiplier;
-        skippedCount++;
-      }
-      // At Nx speed, 50ms real time = 50*N ms of video content.
-      // Time saved per tick = interval * (multiplier - 1)
-      const savedPerTick = ANALYSIS_INTERVAL_MS * (settings.speedMultiplier - 1);
-      timeSavedMs += savedPerTick;
+      const targetRate = originalPlaybackRate +
+        (settings.speedMultiplier - originalPlaybackRate) * intensity;
+      videoElement.playbackRate = Math.max(originalPlaybackRate, targetRate);
+      const savedPerTick = ANALYSIS_INTERVAL_MS * (videoElement.playbackRate - 1);
+      if (savedPerTick > 0) timeSavedMs += savedPerTick;
     }
   }
 
