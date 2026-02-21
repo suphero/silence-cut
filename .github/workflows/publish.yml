@@ -14,19 +14,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build and zip
+        run: make zip
+
       - name: Get version from tag
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
-
-      - name: Build extension zip
-        run: |
-          zip -r silence-cut-${{ steps.version.outputs.VERSION }}.zip \
-            manifest.json \
-            _locales/ \
-            background/ \
-            content/ \
-            icons/ \
-            -x "*.DS_Store"
 
       - name: Upload to Chrome Web Store
         uses: mnao305/chrome-extension-upload@v5.0.0

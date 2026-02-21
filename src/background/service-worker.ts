@@ -1,20 +1,5 @@
 import type { Settings, RuntimeMessage } from '../types';
-
-const DEFAULT_SETTINGS: Settings = {
-  enabled: true,
-  silenceEnabled: true,
-  silenceThreshold: -40,
-  minSilenceDuration: 0.1,
-  musicEnabled: false,
-  musicSensitivity: 0.5,
-  minMusicDuration: 1.0,
-  actionMode: 'speed',
-  speedMultiplier: 4,
-};
-
-function mergeSettings(stored: Partial<Settings> | undefined): Settings {
-  return { ...DEFAULT_SETTINGS, ...(stored || {}) };
-}
+import { mergeSettings } from '../settings';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.get('settings', (data) => {

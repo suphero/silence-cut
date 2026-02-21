@@ -6,6 +6,14 @@ import type {
   AnalyzerMessage,
   AudioNodeCacheEntry,
 } from '../types';
+import {
+  computeTimeDomain,
+  compensateVolume,
+  computeSpectrum,
+  computeSkipIntensity,
+  computeZcrVariance,
+  DEFAULT_SPECTRUM,
+} from '../audio-math';
 
 declare global {
   interface Window {
@@ -147,40 +155,18 @@ declare global {
     const buffer = timeDomainBuffer;
     analyserNode.getFloatTimeDomainData(buffer);
 
-    let sumSquares = 0;
-    let crossings = 0;
-
-    for (let i = 0; i < buffer.length; i++) {
-      sumSquares += buffer[i] * buffer[i];
-      if (i > 0 && buffer[i] >= 0 !== buffer[i - 1] >= 0) {
-        crossings++;
-      }
-    }
-
-    const rms = Math.sqrt(sumSquares / buffer.length);
-    let volumeDB = rms === 0 ? -Infinity : 20 * Math.log10(rms);
+    const result = computeTimeDomain(buffer);
+    let volumeDB = result.volumeDB;
 
     // Compensate for the video element's volume setting.
-    if (videoElement && videoElement.volume > 0 && videoElement.volume < 1) {
-      volumeDB -= 20 * Math.log10(videoElement.volume);
+    if (videoElement) {
+      volumeDB = compensateVolume(volumeDB, videoElement.volume);
     }
 
-    // Normalize ZCR to [0, 1]
-    const zcr = buffer.length > 1 ? crossings / (buffer.length - 1) : 0;
-
-    return { volumeDB, zcr };
+    return { volumeDB, zcr: result.zcr };
   }
 
   // --- Spectrum Analysis ---
-
-  const DEFAULT_SPECTRUM: SpectralFeatures = {
-    spectralFlatness: 0,
-    speechBandRatio: 1,
-    spectralCentroid: 0,
-    spectralSpread: 0,
-    spectralRolloff: 0,
-    spectralFlux: 0,
-  };
 
   function analyzeSpectrum(): SpectralFeatures {
     if (!analyserNode) return DEFAULT_SPECTRUM;
@@ -194,102 +180,18 @@ declare global {
 
     const cached = videoElement && audioNodeCache.get(videoElement);
     const sampleRate = cached?.audioContext.sampleRate ?? 44100;
-    const binHz = sampleRate / analyserNode.fftSize;
 
-    // Skip DC and very low bins
-    const startBin = Math.max(1, Math.floor(20 / binHz));
-    const endBin = Math.min(freqBins, Math.floor(16000 / binHz));
-
-    // Speech band: 300Hz – 3kHz
-    const speechStart = Math.floor(300 / binHz);
-    const speechEnd = Math.floor(3000 / binHz);
-
-    // --- Pass 1: core stats + centroid numerator ---
-    let sumLog = 0;
-    let sumLinear = 0;
-    let count = 0;
-    let speechEnergy = 0;
-    let totalEnergy = 0;
-    let weightedFreqSum = 0;
-    let magnitudeSum = 0;
-    let rawEnergyTotal = 0;
-
-    for (let i = startBin; i < endBin; i++) {
-      const raw = freqData[i];
-      const val = raw + 1;
-
-      sumLog += Math.log(val);
-      sumLinear += val;
-      count++;
-
-      const energy = val * val;
-      totalEnergy += energy;
-      if (i >= speechStart && i < speechEnd) {
-        speechEnergy += energy;
-      }
-
-      const freq = i * binHz;
-      weightedFreqSum += raw * freq;
-      magnitudeSum += raw;
-      rawEnergyTotal += raw * raw;
-    }
-
-    if (count === 0 || sumLinear === 0) return DEFAULT_SPECTRUM;
-
-    const geometricMean = Math.exp(sumLog / count);
-    const arithmeticMean = sumLinear / count;
-    const spectralFlatness = geometricMean / arithmeticMean;
-    const speechBandRatio = totalEnergy > 0 ? speechEnergy / totalEnergy : 1;
-    const spectralCentroid =
-      magnitudeSum > 0 ? weightedFreqSum / magnitudeSum : 0;
-
-    // --- Pass 2: spread, rolloff, flux ---
-    let spreadSum = 0;
-    let cumEnergy = 0;
-    let rolloffFreq = endBin * binHz;
-    let rolloffFound = false;
-    let fluxSum = 0;
-    const rolloffTarget =
-      rawEnergyTotal > 0 ? rawEnergyTotal * 0.85 : Infinity;
-
-    for (let i = startBin; i < endBin; i++) {
-      const raw = freqData[i];
-      const freq = i * binHz;
-
-      const d = freq - spectralCentroid;
-      spreadSum += raw * d * d;
-
-      if (!rolloffFound) {
-        cumEnergy += raw * raw;
-        if (cumEnergy >= rolloffTarget) {
-          rolloffFreq = freq;
-          rolloffFound = true;
-        }
-      }
-
-      if (previousFreqData) {
-        const fd = raw - previousFreqData[i];
-        fluxSum += fd * fd;
-      }
-    }
-
-    const spectralSpread =
-      magnitudeSum > 0 ? Math.sqrt(spreadSum / magnitudeSum) : 0;
-    const spectralFlux = previousFreqData
-      ? Math.sqrt(fluxSum / (endBin - startBin))
-      : 0;
+    const result = computeSpectrum(
+      freqData,
+      sampleRate,
+      analyserNode.fftSize,
+      previousFreqData,
+    );
 
     if (!previousFreqData) previousFreqData = new Uint8Array(freqBins);
     previousFreqData.set(freqData);
 
-    return {
-      spectralFlatness,
-      speechBandRatio,
-      spectralCentroid,
-      spectralSpread,
-      spectralRolloff: rolloffFreq,
-      spectralFlux,
-    };
+    return result;
   }
 
   // --- Music Detection (Hierarchical) ---
@@ -308,14 +210,7 @@ declare global {
     zcrBuffer.push(zcr);
     if (zcrBuffer.length > ZCR_BUFFER_SIZE) zcrBuffer.shift();
 
-    let zcrVariance = 0;
-    if (zcrBuffer.length >= 4) {
-      const zcrMean =
-        zcrBuffer.reduce((a, b) => a + b, 0) / zcrBuffer.length;
-      zcrVariance =
-        zcrBuffer.reduce((sum, v) => sum + (v - zcrMean) ** 2, 0) /
-        zcrBuffer.length;
-    }
+    const zcrVariance = computeZcrVariance(zcrBuffer);
 
     const sens = settings.musicSensitivity;
 
@@ -519,9 +414,11 @@ declare global {
   function handleSkip(volumeDB: number): void {
     if (!videoElement || videoElement.paused) return;
 
-    const dist = settings.silenceThreshold - volumeDB;
-    const linear = Math.min(1, Math.max(0, dist / RAMP_DB));
-    const intensity = linear * linear;
+    const intensity = computeSkipIntensity(
+      volumeDB,
+      settings.silenceThreshold,
+      RAMP_DB,
+    );
 
     if (settings.actionMode === 'skip') {
       const increment = SKIP_INCREMENT * Math.max(0.05, intensity);

@@ -4,21 +4,11 @@ import type {
   DebugFeatures,
   AnalyzerMessage,
 } from '../types';
+import { DEFAULT_SETTINGS } from '../settings';
+import { formatTimeSaved, updateSliderFillPercent } from '../format';
 
 (function () {
   'use strict';
-
-  const DEFAULT_SETTINGS: Settings = {
-    enabled: true,
-    silenceEnabled: true,
-    silenceThreshold: -40,
-    minSilenceDuration: 0.1,
-    musicEnabled: false,
-    musicSensitivity: 0.5,
-    minMusicDuration: 1.0,
-    actionMode: 'speed',
-    speedMultiplier: 4,
-  };
 
   const msg = (...args: Parameters<typeof chrome.i18n.getMessage>): string => {
     try {
@@ -72,23 +62,15 @@ import type {
 
   function updateSliderFill(slider: HTMLInputElement | null): void {
     if (!slider) return;
-    const pct =
-      ((parseFloat(slider.value) - parseFloat(slider.min)) /
-        (parseFloat(slider.max) - parseFloat(slider.min))) *
-      100;
+    const pct = updateSliderFillPercent(
+      parseFloat(slider.value),
+      parseFloat(slider.min),
+      parseFloat(slider.max),
+    );
     slider.style.setProperty(
       '--yt-slider-shape-gradient-percent',
       pct + '%',
     );
-  }
-
-  function formatTimeSaved(ms: number): string {
-    const totalSec = Math.floor(ms / 1000);
-    const hr = Math.floor(totalSec / 3600);
-    const min = Math.floor((totalSec % 3600) / 60);
-    const sec = totalSec % 60;
-    const pad = (n: number): string => String(n).padStart(2, '0');
-    return pad(hr) + ':' + pad(min) + ':' + pad(sec);
   }
 
   // --- Settings ---

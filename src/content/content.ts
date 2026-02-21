@@ -4,21 +4,10 @@ import type {
   AnalyzerMessage,
   RuntimeMessage,
 } from '../types';
+import { DEFAULT_SETTINGS } from '../settings';
 
 (function () {
   'use strict';
-
-  const DEFAULT_SETTINGS: Settings = {
-    enabled: true,
-    silenceEnabled: true,
-    silenceThreshold: -40,
-    minSilenceDuration: 0.5,
-    musicEnabled: false,
-    musicSensitivity: 0.5,
-    minMusicDuration: 1.0,
-    actionMode: 'skip',
-    speedMultiplier: 4,
-  };
 
   let currentSettings: Settings | null = null;
   let currentStatus: Status = {
