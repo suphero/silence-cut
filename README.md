@@ -18,12 +18,18 @@ A Chrome extension that automatically detects and skips or speeds up silent sect
 ```
 silence-cut/
 ├── manifest.json              # Extension manifest (MV3)
-├── background/
-│   └── service-worker.js      # Badge management, settings sync
+├── src/                       # TypeScript source
+│   ├── background/
+│   │   └── service-worker.ts  # Badge management, settings sync
+│   ├── content/
+│   │   ├── content.ts         # Content script bridge (ISOLATED world)
+│   │   ├── audio-analyzer.ts  # Audio analysis engine (MAIN world)
+│   │   └── player-ui.ts       # YouTube player UI panel
+│   └── types.ts               # Shared type definitions
+├── dist/                      # Compiled JS output (git-ignored)
 ├── content/
-│   ├── content.js             # Content script bridge (ISOLATED world)
-│   ├── audio-analyzer.js      # Audio analysis engine (MAIN world)
-│   └── player-ui.js           # YouTube player UI panel
+│   ├── panel.html             # Settings panel HTML
+│   └── panel.css              # Settings panel styles
 ├── icons/                     # Extension icons (16, 32, 48, 128)
 ├── _locales/
 │   ├── en/messages.json
@@ -35,12 +41,27 @@ silence-cut/
 
 ## Development
 
+### Prerequisites
+
+```bash
+npm install
+```
+
+### Build
+
+```bash
+npm run build       # One-time build
+npm run watch       # Watch mode for development
+npm run typecheck   # Type-check without emitting
+```
+
 ### Load Locally
 
 1. Clone the repository
-2. Open `chrome://extensions/`
-3. Enable **Developer mode**
-4. Click **Load unpacked** and select the project directory
+2. Run `npm install && npm run build`
+3. Open `chrome://extensions/`
+4. Enable **Developer mode**
+5. Click **Load unpacked** and select the project directory
 
 ### Build Zip
 
@@ -77,6 +98,7 @@ git push origin v1.2.0
 ```
 
 The pipeline will automatically:
+
 - Build the extension zip
 - Upload it to the Chrome Web Store
 - Create a GitHub Release with auto-generated release notes

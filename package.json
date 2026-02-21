@@ -1,0 +1,21 @@
+{
+  "name": "silence-cut",
+  "version": "1.4.0",
+  "private": true,
+  "description": "A Chrome extension that automatically detects and skips or speeds up silent sections in YouTube videos.",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "watch": "node esbuild.config.mjs --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suphero/silence-cut.git"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "chrome-types": "^0.1.416",
+    "esbuild": "^0.27.3",
+    "typescript": "^5.9.3"
+  }
+}

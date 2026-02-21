@@ -1,2 +1,6 @@
 .DS_Store
 *.zip
+node_modules/
+
+# Build output (generated from src/ by esbuild)
+dist/

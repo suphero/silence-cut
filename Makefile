@@ -2,14 +2,24 @@ NAME = silence-cut
 VERSION = $(shell grep '"version"' manifest.json | head -1 | sed 's/.*: "//;s/".*//')
 ZIP = $(NAME)-$(VERSION).zip
 
-.PHONY: zip clean
+.PHONY: build watch typecheck zip clean
 
-zip: clean
+build:
+	npm run build
+
+watch:
+	npm run watch
+
+typecheck:
+	npm run typecheck
+
+zip: clean build
 	zip -r $(ZIP) \
 		manifest.json \
 		_locales/ \
-		background/ \
-		content/ \
+		dist/ \
+		content/panel.html \
+		content/panel.css \
 		icons/ \
 		-x "*.DS_Store"
 	@echo "Created $(ZIP)"
