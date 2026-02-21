@@ -102,5 +102,11 @@
   },
   "titleSpeed": {
     "message": "Speed Up Silences"
+  },
+  "speech": {
+    "message": "Speech"
+  },
+  "debugInfo": {
+    "message": "Debug Info"
   }
 }

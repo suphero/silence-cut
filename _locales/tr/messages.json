@@ -102,5 +102,11 @@
   },
   "titleSpeed": {
     "message": "Sessizlikleri Hızlandır"
+  },
+  "speech": {
+    "message": "Konuşma"
+  },
+  "debugInfo": {
+    "message": "Hata Ayıklama"
   }
 }
